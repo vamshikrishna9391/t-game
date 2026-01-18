@@ -559,14 +559,12 @@ socket.on('callNotification', (numberList) => {
             display_called_numbers(calledNumbersList, numberList)
         }
     } else {
-        if (clearInterval) {
+        if (intervalID) {
             clearIntervalForCallNum()
         }
         alert('Call number limit Exceed.')
         document.getElementById('callNumBtn').classList.add('d-none')
     }
-
-
 
 });
 

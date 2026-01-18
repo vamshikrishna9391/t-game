@@ -19,10 +19,9 @@
 
 <body>
     <section id="bugMainSection"></section>
-
 </body>
 <script type="text/javascript">
-    const socket = io('http://localhost:3030'); // connect to server
+    const socket = io(); // connect to server
 
     const bugMainSection = document.getElementById('bugMainSection')
 
@@ -172,7 +171,7 @@
     }
 
     function fetchGameIds() {
-        fetch(`http://localhost:3030/get/all/games`)
+        fetch(`/get/all/games`)
             .then(response => response.json())
             .then(data => {
                 let gameIDs = []
@@ -196,7 +195,7 @@
 
         let list = selectList.value
 
-        fetch(`http://localhost:3030/get/all/${list}`, {
+        fetch(`/get/all/${list}`, {
             method: 'GET',
             'Content-Type': 'application/json'
         })
@@ -226,7 +225,7 @@
 
     function getAny() {
         let listName = inputListName.value
-        fetch(`http://localhost:3030/get/any/with/request/${listName}`)
+        fetch(`/get/any/with/request/${listName}`)
             .then(response => response.json())
             .then(data => {
                 output.textContent =
