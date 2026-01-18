@@ -94,9 +94,9 @@
 
         let gameId = gameIDInput.value
         let num = CallNumInput.value
-
+        console.log(allGames.filter(i => String(i.id) === String(gameId))[0])
         console.log("Hello", gameId)
-        if (allGames.filter(i => i.id === gameId).status === 'started') {
+        if (allGames.filter(i => String(i.id) === String(gameId))[0].status === 'started') {
             socket.emit('callNumber', { gameId, num })
         } else {
             alert("Selected Game Not Yet Started")
@@ -179,6 +179,8 @@
                 for (let i of data) {
                     gameIDs.push(i.id)
                 }   
+
+                allGames = data
                 appendGameIdOptions(gameIDs.reverse())
 
 
