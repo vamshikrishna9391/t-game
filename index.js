@@ -8,10 +8,10 @@ const app = express();
 const server = http.createServer(app); // create HTTP server
 // const io = new Server(server);             // create Socket.IO server
 const io = new Server(server, {
-  cors: {
-    origin: "http://127.0.0.1:5500", // frontend URL
-    methods: ["GET", "POST"]
-  }
+    cors: {
+        origin: "http://127.0.0.1:5500", // frontend URL
+        methods: ["GET", "POST"]
+    }
 });
 
 // Middlewares
@@ -158,9 +158,9 @@ function get_unique_id() {
 }
 
 function call_number(gameId, num) {
-    let number = num!== undefined?num:calling_randome_numbers()
+    let number = num !== undefined ? num : calling_randome_numbers()
 
-    console.log("BuG Called Num = ",num)
+    console.log("BuG Called Num = ", num)
 
     let list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
 
@@ -409,11 +409,11 @@ app.get('/get/all/ids', (req, res) => {
 });
 
 app.get('/get/all/all', (req, res) => {
-    res.status(200).json({all:{id_store,list_of_hosts,list_of_players,list_of_all_games,list_of_all_tickets,}})
+    res.status(200).json({ all: { id_store, list_of_hosts, list_of_players, list_of_all_games, list_of_all_tickets, } })
 
 });
 
-app.get('/get/any/with/request/:listName',(req,res)=>{
+app.get('/get/any/with/request/:listName', (req, res) => {
     const { listName } = req.params
 
     res.status(200).json(listName)
@@ -428,6 +428,11 @@ app.get('/get/any/with/request/:listName',(req,res)=>{
 // Client connects
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
+
+    socket.on("client-ping", () => {
+        socket.emit("server-pong");
+    });
+
 
     // Host joins room
     socket.on('hostJoin', ({ name }) => {
@@ -539,7 +544,7 @@ io.on('connection', (socket) => {
     socket.on('callNumber', ({ gameId, num }) => {
 
         const list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
-        
+
         if (list.status === 'started') {
             io.to(`game-${gameId}`).emit('callNotification', call_number(gameId, num));
         } else {
@@ -549,7 +554,7 @@ io.on('connection', (socket) => {
 
     // Update Ticket Number as Checked (true)
     socket.on('updateTicket', ({ player, row_index, item_index, ticketNumHTMLEleId }) => {
-        const { ticket_id} = player
+        const { ticket_id } = player
 
         const ticketId = ticket_id
 
@@ -558,14 +563,14 @@ io.on('connection', (socket) => {
 
         list_of_all_tickets[ticket_index].value[row_index][item_index].isChecked = true
 
-        if(list_of_all_tickets[ticket_index].value[row_index][item_index].isChecked){
-            io.to(player.socketId).emit("ticketNumCheck",{ticketNumHTMLEleId})
-        }else{
-            io.to(player.socketId).emit("ErrorInTicketNumCheck",{message:'Error In Checking Number From Server'})
+        if (list_of_all_tickets[ticket_index].value[row_index][item_index].isChecked) {
+            io.to(player.socketId).emit("ticketNumCheck", { ticketNumHTMLEleId })
+        } else {
+            io.to(player.socketId).emit("ErrorInTicketNumCheck", { message: 'Error In Checking Number From Server' })
         }
 
     })
-    
+
     // Under maintanence 🛠️🚧🛠❌
     socket.on('winReqFromPlayer', ({ id, name, joined_game_id, ticket_id }) => {
         const req = {}
@@ -680,10 +685,10 @@ io.on('connection', (socket) => {
                 list_of_all_games[gameIndex].rools[rooIndex].isCompleated = true
                 list_of_all_games[gameIndex].rools[rooIndex].wName = player.name
                 list_of_all_games[gameIndex].rools[rooIndex].winnerId = player.id
-                
+
                 let roolName = list_of_all_games[gameIndex].rools[rooIndex].name
 
-                if(roolName === 'Full House'){
+                if (roolName === 'Full House') {
                     //send full house winner and game also end
 
                     io.to(`game-${player.joined_game_id}`).emit('GameCompleated', player)

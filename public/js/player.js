@@ -41,6 +41,89 @@ const joinAsHostSection = document.getElementById('joinAsHostSection')
 const joinAsPlayerSection = document.getElementById('joinAsPlayerSection')
 
 
+function socketStatusManager() {
+  const el = document.getElementById("socketStatus");
+  const socket = io();
+
+  let pingInterval = null;
+  let lastPingTime = 0;
+
+  Object.assign(el.style, {
+    padding: "4px 8px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    color: "white",
+    fontWeight: "600",
+    width: "fit-content",
+    background: "red"
+  });
+
+  function signalBars(ms) {
+    if (ms < 100) return "📶📶📶📶";
+    if (ms < 200) return "📶📶📶";
+    if (ms < 400) return "📶📶";
+    return "📶";
+  }
+
+  function startPing() {
+    pingInterval = setInterval(() => {
+      lastPingTime = Date.now();
+      socket.emit("client-ping");
+    }, 2000);
+  }
+
+  function stopPing() {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
+
+  socket.on("server-pong", () => {
+    const latency = Date.now() - lastPingTime;
+    el.textContent = `🟢Connected ${signalBars(latency)}`;
+  });
+
+  socket.on("connect", () => {
+    el.style.background = "green";
+    el.textContent = "🟢 Connecting…";
+    startPing();
+  });
+
+  socket.on("disconnect", () => {
+    el.style.background = "red";
+    el.textContent = "🔴 Offline";
+    stopPing();
+  });
+
+  socket.io.on("reconnect_attempt", () => {
+    el.style.background = "orange";
+    el.textContent = "🟡 Reconnecting";
+  });
+}
+
+socketStatusManager();
+
+socketStatusManager();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const spinner = () => {
     const s = document.createElement('div')
     s.classList.add('spinner')
