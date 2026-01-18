@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUG</title>
+    <style>
+        button,
+        input,
+        select,
+        label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="bugMainSection"></section>
+
+</body>
+<script type="text/javascript">
+    const socket = io('http://localhost:3030'); // connect to server
+
+    const bugMainSection = document.getElementById('bugMainSection')
+
+    let allGames = ''
+    let isChecked = false
+    let listOfAllLists = ['games', 'players', 'tickets', 'host', 'ids', 'all']
+
+
+    const breakLineEle = () => document.createElement('br')
+
+    function createTable(data) {
+
+        if (!data || data.length === 0) return document.createTextNode("No data");
+
+        const table = document.createElement("table");
+        table.border = "1";
+
+        // Create header row
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+
+        Object.keys(data[0]).forEach(key => {
+            const th = document.createElement("th");
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+
+        // Create body rows
+        const tbody = table.createTBody();
+        data.forEach(item => {
+            const row = tbody.insertRow();
+            Object.values(item).forEach(value => {
+                const cell = row.insertCell();
+                cell.textContent = value;
+            });
+        });
+
+        return table;
+    }
+
+    let gameIDInput = document.createElement('select')
+    gameIDInput.id = 'GameIdSelect'
+    gameIDInput.addEventListener('change', function (event) {
+        console.log(event.target.value)
+    })
+
+    let selectList = document.createElement('select')
+    selectList.id = 'listSelect'
+    selectList.addEventListener('change', function (event) {
+        console.log(event.target.value)
+    })
+
+    selectList.innerHTML = ''
+    for (let j of listOfAllLists) {
+        selectList.appendChild(gamesListOption(j))
+    }
+
+    let getSelectedLisBtn = document.createElement("button")
+    getSelectedLisBtn.textContent = "Get"
+    getSelectedLisBtn.addEventListener('click', fetchSelectedList)
+
+    let CallNumInput = document.createElement('input')
+    CallNumInput.placeholder = 'Enter You Want Number'
+    CallNumInput.type = 'number'
+
+    let btn = document.createElement("button")
+    btn.textContent = "Click"
+    btn.addEventListener('click', function () {
+        console.log(gameIDInput.value)
+
+        let gameId = gameIDInput.value
+        let num = CallNumInput.value
+
+        console.log("Hello", gameId)
+        if (allGames.filter(i => i.id === gameId).status === 'started') {
+            socket.emit('callNumber', { gameId, num })
+        } else {
+            alert("Selected Game Not Yet Started")
+        }
+    })
+
+    let refreshGameIDbtn = document.createElement("button")
+    refreshGameIDbtn.textContent = "RefreshGame ID"
+    refreshGameIDbtn.addEventListener('click', fetchGameIds)
+
+    const inputListName = document.createElement("input")
+    inputListName.type = 'text'
+    inputListName.placeholder = "Enter List Name"
+
+    let GetList = document.createElement("button")
+    GetList.textContent = "Get List"
+    GetList.addEventListener('click', getAny)
+
+    const label = document.createElement("label")
+    label.htmlFor = 'tableShow'
+    label.textContent = "Show data In Tabel Formate"
+
+    const checkBox = document.createElement('input')
+    checkBox.id = 'tableShow'
+    checkBox.type = 'checkbox'
+    checkBox.checked = isChecked
+    checkBox.addEventListener("change", function () {
+        isChecked = !isChecked
+        fetchSelectedList()
+    })
+
+    const output = document.createElement("pre")
+
+    bugMainSection.appendChild(gameIDInput)
+    bugMainSection.appendChild(refreshGameIDbtn)
+    bugMainSection.appendChild(breakLineEle())
+
+    bugMainSection.appendChild(CallNumInput)
+    bugMainSection.appendChild(btn)
+    bugMainSection.appendChild(breakLineEle())
+    bugMainSection.appendChild(breakLineEle())
+
+
+    bugMainSection.appendChild(selectList)
+    bugMainSection.appendChild(getSelectedLisBtn)
+
+    // bugMainSection.appendChild(inputListName)
+    // bugMainSection.appendChild(GetList)
+    // bugMainSection.appendChild(breakLineEle())
+    bugMainSection.appendChild(breakLineEle())
+
+    bugMainSection.appendChild(checkBox)
+    bugMainSection.appendChild(label)
+    bugMainSection.appendChild(output)
+
+    socket.on('callNotification', (numberList) => {
+        console.table(numberList)
+    })
+
+    function gamesListOption(op) {
+        const option = document.createElement('option')
+        option.textContent = op
+
+        return option
+    }
+
+    function appendGameIdOptions(list) {
+        gameIDInput.innerHTML = ''
+        for (let j of list) {
+            gameIDInput.appendChild(gamesListOption(j))
+        }
+    }
+
+    function fetchGameIds() {
+        fetch(`http://localhost:3030/get/all/games`)
+            .then(response => response.json())
+            .then(data => {
+                let gameIDs = []
+
+                for (let i of data) {
+                    gameIDs.push(i.id)
+                }   
+                appendGameIdOptions(gameIDs.reverse())
+
+
+
+            })
+            .catch(error => {
+                output.textContent = error;
+            });
+
+
+    }
+
+    function fetchSelectedList() {
+
+        let list = selectList.value
+
+        fetch(`http://localhost:3030/get/all/${list}`, {
+            method: 'GET',
+            'Content-Type': 'application/json'
+        })
+            .then(data => data.json())
+            .then(data => {
+
+                output.innerHTML = ''
+
+                let temp = data
+
+                if(data.all){
+                    temp = [data.all]
+                }
+
+                if (isChecked === true) {
+
+                    output.appendChild(createTable(temp.reverse()));
+                } else {
+                    output.textContent = JSON.stringify(temp.reverse(), null, 2);
+                }
+
+
+            })
+    }
+
+    fetchGameIds()
+
+    function getAny() {
+        let listName = inputListName.value
+        fetch(`http://localhost:3030/get/any/with/request/${listName}`)
+            .then(response => response.json())
+            .then(data => {
+                output.textContent =
+                    JSON.stringify(data.value, null, 2);
+            })
+            .catch(error => {
+                output.textContent = error;
+            });
+
+    }
+
+
+
+
+</script>
+
+</html>

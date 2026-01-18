@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Game</title>
+    <link rel="stylesheet" href="/css">
+    <link rel="icon" type="image/png" href="https://tse2.mm.bing.net/th/id/OIP.UmEI5NiXTLvRPvRuHpPQBgHaHa?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3">
+</head>
+
+<body>
+    <section class="main-game-section">
+        <h1 class="d-none">Welcome to Game Tambola</h1>
+        <header class="entry-section" id="gameEntrySection">
+            <h1>Welcome to Game Tambola</h1>
+            <input id="name" type="text" placeholder="Enter Your Name">
+            <button id="asHostBtn" onclick="joinAsHost()">Host a Game</button>
+            <p>OR</p>
+            <button id="asPlayerBtn" onclick="joinAsPlayer()">Player</button>
+        </header>
+
+        <div>
+            <!-- Host Section -->
+            <section class="d-none" id="joinAsHostSection">
+                <h2 class="host-name-disply-h1">Hi <span id="dispHostName">Vamshi Krishna</span>
+                    You are the Host<!-- <p>You are the Host</p> -->
+                </h2>
+
+                <div class="">
+                    <p class="gradient-box">Your Game ID : <span id="dispGameId">123456</span></p>
+                    <div id="gameRoolsDisply" class="rools-card card6 ">
+                        <h3 id="gameRoolsHeading">Select Game Rools</h3>
+                        <div id="gameRoolsDisplyCard" class="gameRoolsDisply"></div>
+                        <!-- <button>Update Game Rools</button> -->
+                    </div>
+                    <button class="d-no-" id="startGameHostBtn" onclick="startGameHost(this)">Start Game</button>
+
+                    <div class="d-none" id="toglleCallNumberAndEndGameBtns">
+                        <p class="cl-num-end-btn-card">
+                            <button class="btn cll-btn" id="callNumBtn" onclick="callNumbersHost(this)">Call
+                                Number</button>
+                            <button class="btn end-btn" onclick="endGameHost()">End Game</button>
+                        </p>
+                        <hr />
+                        <h3>Set Time For Call Numbers Automatically</h3>
+                        <div class="time-set-card">
+                            <input class="setTimeInputEle" type="number" id="interwellTime"
+                                placeholder="Enter seconds" />
+                            <button id="setIntervalBtn" class="time-set-btn" onclick="setIntervalForCallNum()">Call Num
+                                Auto</button>
+                            <button id="clearIntervalBtn" class="d-none time-set-btn stop-cll-num-btn"
+                                onclick="clearIntervalForCallNum()">Stop Call Num</button>
+
+                        </div>
+
+                        <hr />
+
+                    </div>
+
+                </div>
+
+                <div class="d-none winners-list-tabel-card" id="displayWinnersMain">
+
+                    <!-- Table for disply rools and winners name -->
+                    <table>
+                        <thead>
+                            <tr class="winners-list-tabel-row">
+                                <th colspan="3" class="">
+                                    <h4>Winners (<span id="countOfWinnersHost"></span>)</h4>
+                                </th>
+                            </tr>
+                            <tr class="winners-list-tabel-row">
+                                <th class="th-host">Rools</th>
+                                <th class="th-host">Winner</th>
+                                <!-- <th class="th-host">winner ID</th> -->
+                                <!-- <th class="th-host">Action</th> -->
+                            </tr>
+                        </thead>
+
+                        <tbody id="displyWinnerReqsTableHost">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="list_s">
+                    <div id="diplayCalledNumContainer" class="div_ d-none">
+                        <h4 class="box">Called Number </h4>
+                        <div id="calledNumbersListForHost" class="d-none called_num_list_host width1">
+                            <!-- <div class="">56</div>
+                            <div class="">56</div>
+                            <div class="">56</div>
+                            <div class="">56</div>
+                            <div class="">56</div>
+                            <div class="">56</div> -->
+                        </div>
+                    </div>
+
+                    <div class="joined-players-table-main-card">
+                        <h4 class="box">Joined Players List ( <span id="displyCountOfAllPlayersHost">0</span> )</h4>
+                        <div class="joined-players-table-card">
+                            <table class="joined-players-table">
+                                <thead>
+                                    <tr class="joined-players-table-head-row">
+                                        <th>id</th>
+                                        <th>Name</th>
+                                    </tr>
+                                </thead>
+                                <p id="waitingForPlayersText" class="noPlayer gradient-text">Waiting for players to join
+                                    .....</p>
+                                <tbody id="joinedPlayersListForHost"></tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Player Section -->
+            <section class="d-none player-section-main" id="joinAsPlayerSection">
+                <h1>Hi <span id="displyPlayerName"></span></h1>
+                <h3 class="gradient-box">Your ID : <span id="displyPlayerId">1234567</span></h3>
+                <div id="readGameIdSection">
+                    <input id="readGameId" type="number" placeholder="Enter Game ID">
+                    <button onclick="joinGame()">Join Game</button>
+                </div>
+                <div class="winner-box d-none" id="houseWinnerCard">
+                    <p> Full House Winner </p>
+                    🎉 Congratulations <span id="houseWinnerName">Vamshi Krishna</span> 🎉
+                </div>
+
+                <div class="d-none" id="displayGame">
+                    <div class="player-card">
+                        <h4 class="">Joined Game ID : <span id="showGameID">123456789</span></h4>
+                        <p class=""> Joined Players : <span id="joinedPlayersCount">10</span></p>
+                    </div>
+
+                    <div class="gradient-text" id="loading1">Waiting for host to start the game...</div>
+                    <div class="d-none" id="ticketAndCalledNumDivToggle" class="ticketAndCalledNumDivToggle">
+
+                        <div class="winners-list-tabel-card" id="displayWinnersMain">
+
+                            <!-- Table for disply rools and winners name in players-->
+                            <table>
+                                <thead>
+                                    <tr class="winners-list-tabel-row">
+                                        <th colspan="3" class="">
+                                            <h4>Winners (<span id="countOfWinners"></span>)</h4>
+                                        </th>
+                                    </tr>
+                                    <tr class="winners-list-tabel-row">
+                                        <th class="th-host">Rools</th>
+                                        <th class="th-host">Winner</th>
+                                        <!-- <th class="th-host">winner ID</th> -->
+                                        <!-- <th class="th-host">Action</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody id="displyWinnerReqsTable">
+
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        <div>
+                            <h4 class="called-num-headding">Called Numbers</h4>
+                            <div id="calledNumbersList" class="d-none called_num_list"></div>
+                        </div>
+
+                        <table class="disply-ticket-table">
+                            <h4 class="margin_">Your Ticket <span id="displayTicketID"></span></h4>
+                            <button id="showTicketBtn" onclick="showTicket()">Show Ticket</button>
+
+                            <tbody class="disply-ticket-table-body" id="displayTickets">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</body>
+
+<script type="text/javascript" src="/js"></script>
+
+</html>

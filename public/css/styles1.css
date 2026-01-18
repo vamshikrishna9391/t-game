@@ -1,0 +1,764 @@
+.d-none {
+    display: none !important;
+}
+
+input {
+    outline: none;
+}
+
+.main-game-section {
+    /* height: 100vh; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+p {
+    margin: 5px;
+    margin-left: 0px;
+}
+
+.entry-section {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    /* align-items: center; */
+}
+
+.main-game-section h1 {
+    background: linear-gradient(90deg, red, orange, yellow, green, blue, purple);
+    -webkit-background-clip: text;
+    color: transparent;
+    font-family: 'papyrus';
+}
+
+.entry-section button {
+    background: linear-gradient(45deg, #1e90ff, #00bfff, #35dadc);
+    font-size: large;
+    padding: 10px 20px;
+    color: #fff;
+    border-radius: 10px;
+}
+
+.entry-section button p {
+    margin-bottom: 8px;
+}
+
+.entry-section input {
+    padding: 6px 10px;
+    font-size: large;
+    font-family: 'FreesiaUPC';
+    text-align: center;
+    margin-bottom: 15px;
+    /* border: 1px solid; */
+    border: 0;
+    border-radius: 5px;
+    box-shadow: 0 0 2px 1px #3498db;
+}
+
+body {
+    padding: 25px;
+}
+
+.title {
+    color: #5C6AC4;
+}
+
+h4,
+h3 {
+    margin-bottom: 5px;
+}
+
+.climeWinBtnPlayer {
+    width: 100%;
+}
+
+.called_num_list {
+    display: flex;
+
+    margin-bottom: 20px;
+    padding: 5px 5px;
+    max-width: 450px;
+    background-color: #5C6AC4;
+    /* border-radius: 50px; */
+    overflow-x: scroll;
+    border: 1px solid lightblue;
+}
+
+.width1 {
+    height: 200px;
+}
+
+.list_s {
+    display: flex;
+    justify-content: space-between;
+    /* height: 250px; */
+}
+
+.called_num_list_host {
+    display: flex;
+    flex-direction: column;
+    /* margin-bottom: 20px; */
+    padding: 5px 5px;
+    max-height: 250px;
+    background-color: #5C6AC4;
+    /* border-radius: 50px; */
+    overflow-y: scroll;
+    border: 1px solid lightblue;
+
+}
+
+
+.called_num_list_host div {
+    /* width: 50px; */
+    height: 30px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    border-radius: 100px;
+    padding: 6px;
+
+    text-align: center;
+    font-size: 25px;
+}
+
+.called_num_list div {
+    /* width: 50px; */
+    height: 30px;
+    background-color: #fff;
+    margin-right: 10px;
+    border-radius: 100px;
+    padding: 6px;
+
+    text-align: center;
+    font-size: 25px;
+}
+
+.players_list_host {
+    min-width: 350px;
+    border: 2px solid black;
+    max-height: 200px;
+    overflow-y: scroll;
+}
+
+.players_list_host table {
+    width: 100%;
+    font-size: 18px;
+}
+
+.player-host td {
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+
+    width: none;
+    height: 30px;
+}
+
+.playersListRow {
+    font-weight: bold;
+    background-color: #3498db;
+}
+
+
+.last-called-num {
+    background-color: green !important;
+    color: #fff !important;
+    border: .5px solid #fff;
+    font-weight: bold;
+    border-radius: 100px;
+}
+
+.noPlayer {
+    color: rgb(0, 0, 0);
+}
+
+.div_ {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    margin-right: 15px;
+}
+
+td {
+    width: 50px;
+    height: 50px;
+    background-color: #8EE6FE;
+
+    text-align: center;
+    font-size: 30px;
+    color: #7D02A2;
+}
+
+.td-ticket {
+    cursor: pointer;
+}
+
+.isChecked {
+    text-decoration: line-through;
+    color: green;
+}
+
+table {
+    border: 0;
+}
+
+.winner-req-card {
+    display: flex;
+    flex-direction: column;
+    max-height: 100px;
+    overflow-y: scroll;
+    border: 1px solid;
+}
+
+.player-section-main h3 {
+    margin: 0 !important;
+
+}
+
+.table-headding h4,
+h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.winner-req-card table,
+thead,
+tr,
+th,
+tbody,
+td {
+    font-size: medium !important;
+    height: 18px;
+
+}
+
+.th-host {
+    background-color: #80bbff;
+    padding: 1px 3px;
+
+    font-weight: bolder;
+}
+
+.td-host {
+    background-color: rgb(170, 255, 255);
+    padding: 1px 1px;
+}
+
+.host-name-disply-h1 span {
+    color: #5C6AC4;
+    font-size: xx-large;
+
+}
+
+.host-name-disply-h1 {
+    color: darkslategray;
+    /* font-size: large; */
+}
+
+#dispGameId {
+    font-weight: bolder;
+    font-size: large;
+    font-family: 'Arial Black';
+}
+
+#toglleCallNumberAndEndGameBtns h4,
+h3 {
+    margin: 5px !important;
+}
+
+#displCalledNumberHost {
+    font-size: 20px;
+    color: #fff;
+    background-color: green;
+    padding: 5px;
+    border-radius: 100px;
+}
+
+#readGameIdSection {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+
+}
+
+#readGameIdSection input {
+    padding: 6px 10px;
+    text-align: center;
+    border: 1px solid blue;
+    border-radius: 5px;
+    font-size: medium;
+    box-shadow: 1px 1px 1px blue;
+    margin-bottom: 15px;
+    color: blue;
+}
+
+#readGameIdSection button {
+    padding: 6px 10px;
+    font-size: medium;
+    color: white;
+    background: linear-gradient(30deg, #00BCD4, green, blue, #00BCD4);
+    border: 0;
+    border-radius: 4px;
+    font-weight: bolder;
+}
+
+
+#gameRoolsDisplyCard {
+    width: 280px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: 10px;
+}
+
+#startGameHostBtn {
+    width: 100%;
+    font-size: large;
+    border-radius: 5px;
+    background: linear-gradient(45deg, #00e676, #1de9b6);
+    color: #000;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+}
+
+.card {
+    min-width: 100px;
+}
+
+#toglleCallNumberAndEndGameBtns {
+    justify-content: space-between;
+}
+
+
+
+
+.rools-card {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 2px #3498db;
+    padding: 0 1px;
+    border-radius: 0 10px;
+}
+
+.rools-card button {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    margin-left: 2px;
+}
+
+
+.ticket-num {
+    width: 50px;
+    height: 50px;
+    background-color: #8EE6FE;
+
+    text-align: center;
+    font-size: 25px !important;
+    color: #7D02A2;
+}
+
+.spinner {
+    width: 13px;
+    height: 13px;
+    border: 3px solid #f3f3f3;
+    /* Light grey */
+    border-top: 3px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0px auto;
+    /* Center horizontally */
+}
+
+
+button {
+    border: 0;
+    font-family: 'romon';
+    /* transition: 0.5s; */
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+button:hover {
+    transform: scale(1.03);
+}
+
+input {
+    transition: 0.3s;
+}
+
+input:hover {
+    transform: scale(1.03);
+}
+
+
+
+
+.cl-num-end-btn-card {
+    display: flex;
+}
+
+.btn {
+    width: 100%;
+    padding: 8px 0;
+    border-radius: 5px;
+    font-size: medium;
+    font-weight: bold;
+}
+
+.cll-btn {
+    margin-right: 10px;
+    background-color: blue;
+    color: #fff;
+}
+
+.end-btn {
+    background-color: red;
+    color: #fff;
+}
+
+.time-set-card {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.setTimeInputEle {
+    padding: 4px 8px;
+    /* width: 100px; */
+    border-radius: 5px;
+    border: 1px solid rgb(197, 167, 197);
+    box-shadow: 1px 1px violet;
+    font-size: medium;
+}
+
+.time-set-btn {
+    padding: 4px 8px;
+    background-color: green;
+    color: #fff;
+    border-radius: 3px;
+    font-size: medium;
+    margin-left: 10px;
+    width: 100%;
+}
+
+.stop-cll-num-btn {
+    background-color: red;
+}
+
+.box {
+    padding: 12px 20px;
+    background: #f5f5f5;
+    border-left: 5px solid #4CAF50;
+    font-size: 18px;
+    font-family: Poppins, sans-serif;
+    border-radius: 6px;
+}
+
+.gradient-box {
+    padding: 14px 25px;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #00BCD4, #2196F3);
+    font-family: Poppins, sans-serif;
+}
+
+.player-card {
+    padding: 15px 25px;
+    background: white;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-family: 'Montserrat', sans-serif;
+}
+
+.player-card h4 {
+    padding: 0px !important;
+    margin: 0 !important;
+}
+
+
+.gradient-text {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff00cc, #3333ff, #00eaff, #ff00cc);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradientMove 2s infinite linear;
+  font-family: 'Poppins', sans-serif;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 50% 0%; }
+}
+
+.card3 {
+  padding: 18px 22px;
+  background: #111;
+  color: #00eaff;
+  border: 2px solid #00eaff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #00eaff;
+  font-size: 20px;
+  font-family: 'Russo One', sans-serif;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .card3 {
+    font-size: 17px;
+    padding: 14px 16px;
+  }
+}
+
+.card6 {
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 12px;
+  box-shadow: 0px 8px 20px rgba(0,0,0,0.1);
+  font-size: 18px;
+  font-family: Poppins, sans-serif;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .card6 {
+    font-size: 16px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Spin animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Target all scrollbars */
+::-webkit-scrollbar {
+    height: 8px;
+    /* scrollbar width */
+    width: 5px;
+}
+
+/* Track (background of scrollbar) */
+::-webkit-scrollbar-track {
+    background: #5C6AC4;
+    /* track color */
+    border-radius: 1px;
+}
+
+/* Handle (scroll thumb) */
+::-webkit-scrollbar-thumb {
+    background: #80bbff;
+    /* thumb color */
+    border-radius: 1px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #b6fff8;
+    /* hover color */
+}
+
+
+
+
+
+
+/* ----------- Mobile View Fixes ----------- */
+@media (max-width: 600px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .d-none {
+        display: none;
+    }
+
+    .main-game-section {
+        justify-content: flex-start;
+        padding-top: 10px;
+    }
+
+    .called_num_list {
+        max-width: 300px;
+        padding: 5px;
+        font-size: 16px;
+        overflow-x: auto;
+    }
+
+    .called_num_list div {
+        height: 25px;
+        font-size: 16px;
+        padding: 4px 6px;
+        margin-right: 6px;
+    }
+
+    .called_num_list_host {
+        display: flex;
+        flex-direction: row;
+        max-width: 300px;
+        padding: 5px;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+
+    .called_num_list_host div {
+        display: flex;
+        align-items: center;
+        height: 25px;
+        font-size: 16px;
+        padding: 4px 6px;
+        margin-left: 10px;
+        margin-bottom: 0;
+    }
+
+    .players_list_host {
+        min-width: 350px;
+        border: 2px solid black;
+        max-height: 300px;
+        overflow-y: scroll;
+    }
+
+    .player-host td {
+        height: 35px;
+
+    }
+
+    .th-host {
+        background-color: #80bbff;
+        padding: 1px 10px;
+        font-size: small;
+        font-weight: bolder;
+    }
+
+    .th-host h4,
+    h3 {
+        text-align: center !important;
+    }
+
+
+
+    .list_s {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    table {
+        width: 100%;
+        /* border-collapse: collapse; */
+    }
+
+    td {
+        padding: 0;
+        /* height: 15px; */
+        font-size: 15px;
+    }
+
+    h4,
+    h3 p,
+    #dispGameId,
+    #displCalledNumberHost {
+        text-align: start;
+        font-size: 16px !important;
+    }
+
+    .entry-section {
+        text-align: center !important;
+        font-size: 16px !important;
+
+    }
+
+    .entry-section p {
+        text-align: center !important;
+
+    }
+
+    .winner-req-card table,
+    thead,
+    tr,
+    th,
+    tbody,
+    td {
+        font-size: x-small !important;
+    }
+
+
+    #displCalledNumberHost {
+        display: inline-block;
+        padding: 6px 10px;
+    }
+
+    .div_ {
+        margin-right: 0;
+        width: 100%;
+        align-items: center;
+    }
+
+    .width1 {
+        height: auto;
+    }
+
+    .ticket-num {
+        width: 35px;
+        height: 35px;
+        background-color: #8EE6FE;
+
+        text-align: center;
+        font-size: 18px !important;
+        color: #7D02A2;
+    }
+
+    .td-host {
+        background-color: rgb(170, 255, 255);
+        padding: 1px 1px;
+    }
+
+    .box {
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+
+    .gradient-box {
+        font-size: 18px;
+        padding: 12px 20px;
+    }
+
+    .player-card {
+        font-size: 18px;
+        padding: 12px 18px;
+    }
+
+    .gradient-text {
+        font-size: 20px;
+    }
+
+}
