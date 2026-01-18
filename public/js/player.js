@@ -59,9 +59,9 @@ function socketStatusManager() {
   });
 
   function signalBars(ms) {
-    if (ms < 100) return "📶📶📶📶";
-    if (ms < 200) return "📶📶📶";
-    if (ms < 400) return "📶📶";
+    if (ms < 50) return "📶📶📶📶";
+    if (ms < 100) return "📶📶📶";
+    if (ms < 200) return "📶📶";
     return "📶";
   }
 
