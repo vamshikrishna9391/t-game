@@ -100,9 +100,6 @@ function socketStatusManager() {
   });
 }
 
-socketStatusManager();
-
-socketStatusManager();
 
 
 
