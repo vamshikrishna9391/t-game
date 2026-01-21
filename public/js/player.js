@@ -149,14 +149,15 @@ isTimeSetToCallNum = true
 
 function clearIntervalForCallNum() {
     clearInterval(intervalID)
-    document.getElementById('clearIntervalBtn').classList.add('d-none')
-    document.getElementById('setIntervalBtn').classList.remove('d-none')
+    
 }
 
 
 function stopCallNum() {
     clearIntervalForCallNum()
     isTimeSetToCallNum = false 
+    document.getElementById('clearIntervalBtn').classList.add('d-none')
+    document.getElementById('setIntervalBtn').classList.remove('d-none')
 }
 
 function hostPageLoad() {
