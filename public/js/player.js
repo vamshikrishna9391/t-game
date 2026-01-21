@@ -433,6 +433,7 @@ function callNumbersHost(btn) {
     socket.emit('callNumber', { gameId })
 
     btn.innerHTML = ''
+    btn.disabled = true
     btn.appendChild(spinner())
 }
 
@@ -642,6 +643,7 @@ socket.on('callNotification', (numberList) => {
 
         if (String(player.role) === 'host') {
             document.getElementById("callNumBtn").innerHTML = 'Call Number'
+            document.getElementById("callNumBtn").disabled = false 
 
             const calledNumbersListForHost = document.getElementById("calledNumbersListForHost")
             calledNumbersListForHost.classList.remove('d-none')
