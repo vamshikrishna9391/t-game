@@ -34,6 +34,8 @@ let roolsListHost = []
 
 var called_numbers_list = []
 
+let isTimeSetToCallNum = false
+
 let intervalID
 
 const gameEntrySection = document.getElementById('gameEntrySection')
@@ -128,10 +130,16 @@ const spinner = () => {
 }
 
 function setIntervalForCallNum() {
-
+isTimeSetToCallNum = true
     const s = parseInt(document.getElementById('interwellTime').value) * 1000
     intervalID = setInterval(function () {
+        if (called_numbers_list.length <= 98){
         document.getElementById('callNumBtn').click()
+            clearIntervalForCallNum()
+        } else {
+            document.getElementById('callNumBtn').click()
+        }
+        clearIntervalForCallNum()
     }, s)
 
     document.getElementById('clearIntervalBtn').classList.remove('d-none')
@@ -143,8 +151,12 @@ function clearIntervalForCallNum() {
     clearInterval(intervalID)
     document.getElementById('clearIntervalBtn').classList.add('d-none')
     document.getElementById('setIntervalBtn').classList.remove('d-none')
+}
 
 
+function stopCallNum() {
+    clearIntervalForCallNum()
+    isTimeSetToCallNum = false 
 }
 
 function hostPageLoad() {
@@ -638,9 +650,11 @@ socket.on('callNotification', (numberList) => {
             calledNumbersList.classList.remove('d-none')
             display_called_numbers(calledNumbersList, numberList)
         }
+        if(isTimeSetToCallNum){setIntervalForCallNum()}
+        
     } else {
         if (intervalID) {
-            clearIntervalForCallNum()
+            stopCallNum()
         }
         alert('Call number limit Exceed.')
         document.getElementById('callNumBtn').classList.add('d-none')
