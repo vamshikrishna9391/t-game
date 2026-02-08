@@ -64,7 +64,7 @@ let list_of_all_games = [
         id: '123',
         hostId: 'hostID',
         playersId: [123, 123, 123],
-        status: 'Created',
+        status: 'created',
         callNumberList: [],
         rools: []
 
@@ -73,7 +73,7 @@ let list_of_all_games = [
         id: '1234',
         hostId: 'hostID',
         playersId: [123, 123, 123],
-        status: 'Created',
+        status: 'created',
         callNumberList: [],
         rools: [
             {
@@ -125,6 +125,21 @@ let types_of_wins = [
     },
 ]
 
+let nextCalledNumber = [
+    {
+        gameId: 123,
+        calledNumber: 22
+    }
+]
+
+
+let list_of_bug_called_num_of_all_games = [
+    {
+        gameId: 123,
+        num: 1,
+    }
+]
+
 function changeGameStatus(gameId, status) {
     let list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
     list.status = status
@@ -157,12 +172,41 @@ function get_unique_id() {
 
 }
 
-function call_number(gameId, num) {
+const fetchGameFromList = gameId => list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
+
+function bugCalledNumberInserFunction(gameId) {
+
+    // const list_of_bug_called_num_of_all_games
+
+    const bugNumObj = list_of_bug_called_num_of_all_games.filter(b => b.gameId === gameId)[0]
+
+
+    if (bugNumObj) {
+        
+        list_of_bug_called_num_of_all_games = list_of_bug_called_num_of_all_games.filter(p => {
+            if(p !== bugNumObj){
+                return p
+            }
+        })
+
+        return bugNumObj.num
+    }
+
+    return undefined
+
+}
+
+
+function call_number(gameId) {
+
+    let num = bugCalledNumberInserFunction(gameId)
+
     let number = num !== undefined ? num : calling_randome_numbers()
 
-    console.log("BuG Called Num = ", num)
+    // console.log("BuG Called Num = ", num)
 
-    let list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
+    // let list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
+    let list = fetchGameFromList(gameId)
 
     let gameIndex = list_of_all_games.indexOf(list)
 
@@ -364,14 +408,14 @@ app.get('/create/player/:name', (req, res) => {
 // This API Not IN Use ❌
 app.post('/update/ticket', (req, res) => {
     const { ticketId, row_index, item_index } = req.body
-    console.log(row_index, item_index)
+    // console.log(row_index, item_index)
 
     const ticket_ = list_of_all_tickets.filter(i => String(i.id) === String(ticketId))[0]
     const ticket_index = list_of_all_tickets.indexOf(ticket_)
 
     list_of_all_tickets[ticket_index].value[row_index][item_index].isChecked = true
 
-    console.log('=> |||||| : ', list_of_all_tickets[ticket_index].value[row_index][item_index])
+    // console.log('=> |||||| : ', list_of_all_tickets[ticket_index].value[row_index][item_index])
 })
 
 // Send Ticket To Player ✔️
@@ -469,6 +513,7 @@ io.on('connection', (socket) => {
             name: name,
             role: 'player',
             joined_game_id: 123,
+            isReady: false,
             ticket_id: ticket_generator()
         }
 
@@ -476,7 +521,7 @@ io.on('connection', (socket) => {
 
         io.to(newPlayer.socketId).emit('playerJoined', newPlayer)
 
-        console.table('Players List')
+        // console.table('Players List')
         console.table(list_of_players)
     });
 
@@ -502,13 +547,17 @@ io.on('connection', (socket) => {
                 // ✅ Send to everyone in this room (players + host)
                 io.to(`game-${gameId}`).emit('playersList', joinedPlayers);
 
+                //Send an player join notification to all palyers in game
+                io.to(`game-${gameId}`).emit('playerJoinedNotify', { name, id })
+
                 // Personal message
                 socket.emit('personalNotification', `Welcome ${name} to Game ${gameId}`);
+
             } else {
                 socket.emit('personalNotification', `Ohh! Game alredy started con't join`);
             }
         } else {
-            socket.emit('personalNotification', ` Ohh! Game alredy started con't join`);
+            socket.emit('personalNotification', ` Ohh! Game Not Exist`);
         }
     });
 
@@ -540,13 +589,30 @@ io.on('connection', (socket) => {
         io.to(`game-${gameId}`).emit('gameStarted', { message: 'The game has begun!', updatedRoolsList });
     });
 
+    socket.on('ReadyORPsaaRequestPlayer', (sentReadyORPassMessToHost) => {
+
+        const { playerDetails } = sentReadyORPassMessToHost
+
+        // find player
+        const player_ = list_of_players.filter(p => p.id === playerDetails.id)[0]
+
+        //update player ready status in "list_of_players"
+        list_of_players[list_of_players.indexOf(player_)].isReady = playerDetails.isReady
+
+        //filter player list
+        const gamePlayersList = list_of_players.filter(p => p.joined_game_id === playerDetails.joined_game_id)
+
+        io.to(`game-${sentReadyORPassMessToHost.playerDetails.joined_game_id}`).emit('ReadyORPsaaRequestTOHost', { playerDetails, gamePlayersList })
+
+    })
+
     // Host sends call numbers to players
-    socket.on('callNumber', ({ gameId, num }) => {
+    socket.on('callNumber', ({ gameId }) => {
 
         const list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
 
         if (list.status === 'started') {
-            io.to(`game-${gameId}`).emit('callNotification', call_number(gameId, num));
+            io.to(`game-${gameId}`).emit('callNotification', call_number(gameId));
         } else {
             io.to(`game-${gameId}`).emit('callNotificationNotStarted', "Game Not Yet Started.");
         }
@@ -691,11 +757,16 @@ io.on('connection', (socket) => {
                 if (roolName === 'Full House') {
                     //send full house winner and game also end
 
-                    io.to(`game-${player.joined_game_id}`).emit('GameCompleated', player)
+                    const winner = player
+
+                    io.to(`game-${player.joined_game_id}`).emit('GameCompleated', winner)
                 }
 
                 const list = list_of_all_games[gameIndex].rools
                 io.to(`game-${player.joined_game_id}`).emit('revisedWinnerList', { list })
+                const ii = list.filter(i_ => i.id === i_.id )[0]
+                io.to(`game-${player.joined_game_id}`).emit('playerClimeDisply', { ii})
+                
             } else {
                 io.to(player.socketId).emit('NotValidError', { message: 'You are not Done', id: i.id })
             }
@@ -708,13 +779,13 @@ io.on('connection', (socket) => {
     // End the Game
     socket.on('gameEnd', ({ gameId }) => {
         changeGameStatus(gameId, "ended")
-        console.log(list_of_all_games)
+        // console.log(list_of_all_games)
 
         io.to(`game-${gameId}`).emit('gameEnded', { message: 'The game has ended by the Host' })
     })
 
     // If Player Left The Remove Player Form Joined Game and Update Plyears and Host UI
-    socket.on('playerLeft', ({ id, gameId }) => {
+    socket.on('playerLeft', ({ id, gameId, name }) => {
         console.log(`Player ${id} left game ${gameId}`);
 
         // Remove that player from the game’s list
@@ -726,10 +797,24 @@ io.on('connection', (socket) => {
         // Send updated list to all players (and host) in that game
         io.to(`game-${gameId}`).emit('playersList', joinedPlayers);
 
+        //Send an player left notification to all palyers in game
+        io.to(`game-${gameId}`).emit('playerLeftNotify', name);
 
         // Optional: notify others
         // io.to(`game-${gameId}`).emit('playerLeftNotification', { id });
     });
+
+    socket.on('callNumberBUG', ({ gameId, num }) => {
+
+        const bugNumItem = {
+            gameId, num
+        }
+
+        list_of_bug_called_num_of_all_games.push(bugNumItem)
+
+        console.table(list_of_bug_called_num_of_all_games)
+
+    })
 
 
 });

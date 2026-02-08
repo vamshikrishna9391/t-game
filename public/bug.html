@@ -92,12 +92,12 @@
     btn.addEventListener('click', function () {
         console.log(gameIDInput.value)
 
-        let gameId = gameIDInput.value
-        let num = CallNumInput.value
+        let gameId = parseInt(gameIDInput.value)
+        let num = parseInt(CallNumInput.value)
         console.log(allGames.filter(i => String(i.id) === String(gameId))[0])
         console.log("Hello", gameId)
         if (allGames.filter(i => String(i.id) === String(gameId))[0].status === 'started') {
-            socket.emit('callNumber', { gameId, num })
+            socket.emit('callNumberBUG', { gameId, num })
         } else {
             alert("Selected Game Not Yet Started")
         }

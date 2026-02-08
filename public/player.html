@@ -32,14 +32,14 @@
                 </h2>
 
                 <div class="">
-                    <p class="gradient-box">Your Game ID : <span id="dispGameId">123456</span></p>
+                    <p class="gradient-box">Your Game ID : <span id="dispGameId">123456</span> <button class="copy-btn" onclick="copyElementValue('dispGameId')">Copy ID</button></p>
                     <div id="gameRoolsDisply" class="rools-card card6 ">
                         <h3 id="gameRoolsHeading">Select Game Rools</h3>
                         <div id="gameRoolsDisplyCard" class="gameRoolsDisply"></div>
                         <!-- <button>Update Game Rools</button> -->
                     </div>
                     <button class="d-no-" id="startGameHostBtn" onclick="startGameHost(this)">Start Game</button>
-
+                    
                     <div class="d-none" id="toglleCallNumberAndEndGameBtns">
                         <p class="cl-num-end-btn-card">
                             <button class="btn cll-btn" id="callNumBtn" onclick="callNumbersHost(this)">Call
@@ -47,14 +47,18 @@
                             <button class="btn end-btn" onclick="endGameHost()">End Game</button>
                         </p>
                         <hr />
-                        <h3>Set Time For Call Numbers Automatically</h3>
-                        <div class="time-set-card">
+                        <h3>
+                            <input id="setTimeForCallNumCheckBoxInput" type="checkbox">
+                            <label for="setTimeForCallNumCheckBoxInput">Set Time For Call Numbers Automatically</label>
+                        </h3>
+                        <popUP class="notify" id="displayGamePassedPlayerNameHost"></popUP>
+                        <div id="displTimeSetPrompt" class="time-set-card d-none">
                             <input class="setTimeInputEle" type="number" id="interwellTime"
                                 placeholder="Enter seconds" />
                             <button id="setIntervalBtn" class="time-set-btn" onclick="setIntervalForCallNum()">Call Num
                                 Auto</button>
                             <button id="clearIntervalBtn" class="d-none time-set-btn stop-cll-num-btn"
-                                onclick="clearIntervalForCallNum()">Stop Call Num</button>
+                                onclick="stopCallNum()">Stop Call Num</button>
 
                         </div>
 
@@ -63,6 +67,11 @@
                     </div>
 
                 </div>
+                
+                <div class="winner-box d-none" id="houseWinnerCardHost">
+                        <!-- <p> Full House Winner </p>
+                        🎉 Congratulations <span class="houseWinnerName" id="houseWinnerName">Vamshi Krishna</span> 🎉 -->
+                    </div>
 
                 <div class="d-none winners-list-tabel-card" id="displayWinnersMain">
 
@@ -77,6 +86,7 @@
                             <tr class="winners-list-tabel-row">
                                 <th class="th-host">Rools</th>
                                 <th class="th-host">Winner</th>
+                                <th class="th-host"></th>
                                 <!-- <th class="th-host">winner ID</th> -->
                                 <!-- <th class="th-host">Action</th> -->
                             </tr>
@@ -111,6 +121,7 @@
                                     <tr class="joined-players-table-head-row">
                                         <th>id</th>
                                         <th>Name</th>
+                                        <th>Status <span id="showAllPlayersReadyStatus"></span></th>
                                     </tr>
                                 </thead>
                                 <p id="waitingForPlayersText" class="noPlayer gradient-text">Waiting for players to join
@@ -127,19 +138,27 @@
             <!-- Player Section -->
             <section class="d-none player-section-main" id="joinAsPlayerSection">
                 <h1>Hi <span id="displyPlayerName"></span></h1>
-                <h3 class="gradient-box">Your ID : <span id="displyPlayerId">1234567</span></h3>
+                <h3 class="gradient-box">Your ID : <span id="displyPlayerId">1234567</span> 
+                <button class="copy-btn" onclick="copyElementValue('displyPlayerId')">Copy ID</button></h3>
                 <div id="readGameIdSection">
                     <input id="readGameId" type="number" placeholder="Enter Game ID">
                     <button onclick="joinGame()">Join Game</button>
                 </div>
+                <!-- <div class="notify" id="GameStatedNotification">Game Started</div> -->
                 <div class="winner-box d-none" id="houseWinnerCard">
-                    <p> Full House Winner </p>
-                    🎉 Congratulations <span id="houseWinnerName">Vamshi Krishna</span> 🎉
+                    <!-- <p> Full House Winner </p>
+                    🎉 Congratulations <span class="houseWinnerName" id="houseWinnerName">Vamshi Krishna</span> 🎉 -->
                 </div>
 
                 <div class="d-none" id="displayGame">
                     <div class="player-card">
-                        <h4 class="">Joined Game ID : <span id="showGameID">123456789</span></h4>
+                        <h4 class="">Joined Game ID : <span id="showGameID">123456789</span>
+                            <button onclick="sentReadyMessPlayer()" id="readyBtn" class="ready-btn readyAndPassBtn"
+                                data-tooltip="Click To Tell 'Host I'm Ready'">Ready</button>
+                            <button onclick="PassTheGamePlayer()" id="passBtn" class="pass-btn readyAndPassBtn d-none"
+                                data-tooltip="Click to Pass the game untill you ready">Pass</button>
+                        </h4>
+                        <p class=""> Hosted By : <span id="hostNameDispInPlayer">Vamshi Krishna</span></p>
                         <p class=""> Joined Players : <span id="joinedPlayersCount">10</span></p>
                     </div>
 

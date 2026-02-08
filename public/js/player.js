@@ -34,7 +34,13 @@ let roolsListHost = []
 
 var called_numbers_list = []
 
+let isTimeSetToCallNum = false
+
 let intervalID
+
+let joinedPlayersListForHost = []
+
+let isAllPlayersReady = false
 
 const gameEntrySection = document.getElementById('gameEntrySection')
 const joinAsHostSection = document.getElementById('joinAsHostSection')
@@ -42,67 +48,42 @@ const joinAsPlayerSection = document.getElementById('joinAsPlayerSection')
 
 
 function socketStatusManager() {
-  const el = document.getElementById("socketStatus");
-  const socket = io();
+    const el = document.getElementById("socketStatus");
+    const socket = io();
 
-  let pingInterval = null;
-  let lastPingTime = 0;
+    let lastPingTime = 0;
 
-  Object.assign(el.style, {
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    color: "white",
-    fontWeight: "600",
-    width: "fit-content",
-    background: "red"
-  });
+    function signalBars(ms) {
+        if (ms < 10) return "📶📶📶📶";
+        if (ms < 100) return "📶📶📶";
+        if (ms < 200) return "📶📶";
+        return "📶";
+    }
 
-  function signalBars(ms) {
-    if (ms < 50) return "📶📶📶📶";
-    if (ms < 100) return "📶📶📶";
-    if (ms < 200) return "📶📶";
-    return "📶";
-  }
-
-  function startPing() {
-    pingInterval = setInterval(() => {
-      lastPingTime = Date.now();
-      socket.emit("client-ping");
+    setInterval(() => {
+        lastPingTime = Date.now();
+        socket.emit("client-ping");
     }, 2000);
-  }
 
-  function stopPing() {
-    clearInterval(pingInterval);
-    pingInterval = null;
-  }
+    socket.on("server-pong", () => {
+        const latency = Date.now() - lastPingTime;
+        el.textContent = `🟢 Connected ${signalBars(latency)}`;
+    });
 
-  socket.on("server-pong", () => {
-    const latency = Date.now() - lastPingTime;
-    el.textContent = `🟢Connected ${signalBars(latency)}`;
-  });
+    socket.on("connect", () => {
+        el.textContent = "🟢 Connected";
+    });
 
-  socket.on("connect", () => {
-    el.style.background = "green";
-    el.textContent = "🟢 Connecting…";
-    startPing();
-  });
+    socket.on("disconnect", () => {
+        el.textContent = "🔴 Offline";
+    });
 
-  socket.on("disconnect", () => {
-    el.style.background = "red";
-    el.textContent = "🔴 Offline";
-    stopPing();
-  });
-
-  socket.io.on("reconnect_attempt", () => {
-    el.style.background = "orange";
-    el.textContent = "🟡 Reconnecting";
-  });
+    socket.io.on("reconnect_attempt", () => {
+        el.textContent = "🟡 Reconnecting";
+    });
 }
 
-socketStatusManager();
-
-socketStatusManager();
+socketStatusManager()
 
 
 
@@ -130,31 +111,100 @@ const spinner = () => {
     return s
 }
 
+function copyElementValue(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const text = el.value || el.innerText; // works for input or div
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            showNotify(`Copied: ${text}`); // optional, use your notification function
+        })
+        .catch(err => console.error('Copy failed', err));
+}
+
+
+
+document.getElementById('setTimeForCallNumCheckBoxInput').addEventListener('change', function () {
+    if (this.checked) {
+        document.getElementById('displTimeSetPrompt').classList.remove('d-none')
+    } else {
+        document.getElementById('displTimeSetPrompt').classList.add('d-none')
+        stopCallNum()
+    }
+
+})
+
 function setIntervalForCallNum() {
+    if (isAllPlayersReady) {
 
-    const s = parseInt(document.getElementById('interwellTime').value) * 1000
-    intervalID = setInterval(function () {
-        document.getElementById('callNumBtn').click()
-    }, s)
 
-    document.getElementById('clearIntervalBtn').classList.remove('d-none')
-    document.getElementById('setIntervalBtn').classList.add('d-none')
+        if (String(called_numbers_list.length) === '99') {
+            stopCallNum()
+            showError('Limite Exceeded')
+
+            // console.log(called_numbers_list.length)
+        } else {
+            isTimeSetToCallNum = true
+            const s = parseInt(document.getElementById('interwellTime').value) * 1000
+            intervalID = setInterval(function () {
+                if (called_numbers_list.length >= 98) {
+                    document.getElementById('callNumBtn').click()
+                    clearIntervalForCallNum()
+                } else {
+                    document.getElementById('callNumBtn').click()
+                }
+                clearIntervalForCallNum()
+            }, s)
+
+            document.getElementById('clearIntervalBtn').classList.remove('d-none')
+            document.getElementById('setIntervalBtn').classList.add('d-none')
+        }
+
+    } else {
+        showError("Not All Players Ready Yet..!")
+    }
 
 }
 
 function clearIntervalForCallNum() {
     clearInterval(intervalID)
-    document.getElementById('clearIntervalBtn').classList.add('d-none')
-    document.getElementById('setIntervalBtn').classList.remove('d-none')
-
 
 }
 
+
+function stopCallNum() {
+    clearIntervalForCallNum()
+    isTimeSetToCallNum = false
+    document.getElementById('clearIntervalBtn').classList.add('d-none')
+    document.getElementById('setIntervalBtn').classList.remove('d-none')
+}
+
+
+const displyWinnerToAll = (name) => {
+
+    const p = document.createElement('p')
+    p.textContent = "Full House Winner"
+
+    const text1 = document.createTextNode("🎉 Congratulations")
+
+    const span = document.createElement('span')
+    span.classList.add('houseWinnerName')
+    span.textContent = name
+
+    const text2 = document.createTextNode('🎉')
+
+    return ([p, text1, span, text2])
+
+}
+
+
+
 function hostPageLoad() {
     const { game_id, name, id } = player
-    console.table(player)
-    console.log(typeof (player))
-    console.log(player)
+    // console.table(player)
+    // console.logg(typeof (player))
+    // console.logg(player)
 
     document.getElementById('dispHostName').textContent = name
     document.getElementById('dispGameId').textContent = game_id
@@ -171,10 +221,7 @@ function joinAsHost() {
         socket.emit('hostJoin', { name })
 
     } else {
-        const win = confirm("Is Your Name 'Null' ? ");
-        if (!win) {
-            alert('Then Enter Your Name')
-        }
+        const win = confirm("Enter Your Good Name");
     }
 
 
@@ -206,10 +253,8 @@ function joinAsPlayer() {
         socket.emit('playerJoin', { name })
 
     } else {
-        const win = confirm("Is Your Name 'Null' ? ");
-        if (!win) {
-            alert('Then Enter Your Name')
-        }
+        const win = confirm("Enter Your Good Name");
+
     }
 
 
@@ -230,6 +275,44 @@ function joinAsPlayer() {
     //     })
 }
 
+
+//player ready status sent to host
+function sentReadyMessPlayer() {
+    const btns = document.querySelectorAll(".readyAndPassBtn")
+
+    const sentReadyORPassMessToHost = {
+        playerDetails: { ...player, isReady: true },
+        isReady: true
+    }
+
+    socket.emit("ReadyORPsaaRequestPlayer", sentReadyORPassMessToHost)
+
+    //toogle the pass and ready btns
+    btns[0].classList.add('d-none')
+    btns[1].classList.remove('d-none')
+
+
+
+}
+
+// To player Pass The Game 
+function PassTheGamePlayer() {
+    const btns = document.querySelectorAll(".readyAndPassBtn")
+
+
+    const sentReadyORPassMessToHost = {
+        playerDetails: { ...player, isReady: false },
+        isReady: true
+    }
+
+    socket.emit("ReadyORPsaaRequestPlayer", sentReadyORPassMessToHost)
+
+    //toogle the pass and ready btns
+    btns[0].classList.remove('d-none')
+    btns[1].classList.add('d-none')
+
+}
+
 function jonedGame() {
 
     document.getElementById('showGameID').textContent = player.joined_game_id
@@ -240,12 +323,12 @@ function jonedGame() {
 
 function joinGame() {
     const gameId = document.getElementById("readGameId").value
-    console.log(gameId)
+    // console.logg(gameId)
     if (gameId !== '') {
         player.joined_game_id = gameId
         socket.emit('joinGame', { ...player, gameId });
     } else {
-        alert('Where is Game ID ????')
+        showNotify('Where is Game ID ????')
     }
 }
 
@@ -256,9 +339,9 @@ function showTicket() {
     // Display Ticket
     function display_ticket(ticket) {
 
-        console.log('=> ticket: ', ticket)
+        // console.logg('=> ticket: ', ticket)
         function ticket_row(row) {
-            console.table(row)
+            // console.table(row)
 
             const ticketRow = document.createElement('tr')
             ticketRow.classList.add('disply-ticket-table-body-row')
@@ -287,7 +370,7 @@ function showTicket() {
                                 if (item.id === id && item.isChecked === false) {
                                     // if (item.id === id && item.isChecked === false) {
                                     let item_index = ticket[row_index].indexOf(item)
-                                    console.log(row_index, item_index)
+                                    // console.logg(row_index, item_index)
                                     // list_of_all_tickets[0].value[row_index][item_index].isChecked = true
 
 
@@ -355,7 +438,7 @@ function showTicket() {
     }
 
 
-    console.log(player.ticket_id)
+    // console.logg(player.ticket_id)
     fetch(`/get/ticket/${player.ticket_id}`, {
         method: 'GET',
         'Content-Type': 'application/json'
@@ -363,8 +446,8 @@ function showTicket() {
         .then(data => data.json())
         .then(data => {
             let t = data.ticket
-            console.log(t)
-            console.log(t.value)
+            // console.logg(t)
+            // console.logg(t.value)
             document.getElementById('displayTicketID').textContent = t.id
             display_ticket(t.value)
             showTicketBtn.classList.add('d-none')
@@ -394,6 +477,16 @@ function display_called_numbers(perentDiv, list) {
     }
 }
 
+function allPlayersReadyStatusUpdateFunction() {
+
+    isAllPlayersReady = joinedPlayersListForHost.every(item => item.isReady)
+
+    const statusEle = document.getElementById("showAllPlayersReadyStatus")
+    statusEle.textContent = isAllPlayersReady ? "✅" : "🔴"
+    // console.logg('isAllPlayersReady : ', isAllPlayersReady)
+}
+
+
 function display_joined_players_list(perentDiv, numList) {
 
     perentDiv.innerHTML = "";
@@ -409,6 +502,12 @@ function display_joined_players_list(perentDiv, numList) {
         nameEle.textContent = item.name
         tRow.appendChild(nameEle)
 
+        const status = document.createElement('td')
+        status.textContent = item.isReady ? "🟢" : "🔴"
+        tRow.appendChild(status)
+
+        // console.logg("item : ", item)
+
         return tRow
     }
 
@@ -418,26 +517,35 @@ function display_joined_players_list(perentDiv, numList) {
 }
 
 function callNumbersHost(btn) {
-    const { game_id } = player
-    const gameId = game_id
-    socket.emit('callNumber', { gameId })
+    if (isAllPlayersReady) {
+        const { game_id } = player
+        const gameId = game_id
+        socket.emit('callNumber', { gameId })
 
-    btn.innerHTML = ''
-    btn.appendChild(spinner())
+        btn.innerHTML = ''
+        btn.disabled = true
+        btn.appendChild(spinner())
+    } else {
+        showError("Not All Players Ready Yet..!")
+    }
 }
 
 function startGameHost(btn) {
+    if (isAllPlayersReady) {
 
-    const { game_id } = player
-    const gameId = game_id
-    socket.emit('startGame', { gameId, tempRoolsList })
+        const { game_id } = player
+        const gameId = game_id
+        socket.emit('startGame', { gameId, tempRoolsList })
 
-    btn.innerHTML = ''
-    btn.appendChild(spinner())
-    btn.classList.add('d-none')
-    document.getElementById('toglleCallNumberAndEndGameBtns').classList.remove('d-none')
-    document.getElementById('diplayCalledNumContainer').classList.remove('d-none')
-    document.getElementById('displayWinnersMain').classList.remove('d-none')
+        btn.innerHTML = ''
+        btn.appendChild(spinner())
+        btn.classList.add('d-none')
+        document.getElementById('toglleCallNumberAndEndGameBtns').classList.remove('d-none')
+        document.getElementById('diplayCalledNumContainer').classList.remove('d-none')
+        document.getElementById('displayWinnersMain').classList.remove('d-none')
+    } else {
+        showError('Not All Players Ready Yet..!')
+    }
 }
 
 function endGameHost() {
@@ -447,7 +555,7 @@ function endGameHost() {
 }
 
 function validatePlayerTicket(i) {
-    console.log(i)
+    // console.logg(i)
     i.innerHTML = ''
     i.appendChild(spinner())
     const p = i.parentElement
@@ -492,7 +600,7 @@ function showGameRoolsHost(roolsList) {
     }
 
     for (let item of roolsList) {
-        console.log(item)
+        // console.logg(item)
         gameRoolsDisply.appendChild(rool(item))
     }
 
@@ -539,7 +647,7 @@ function displayGameRools(perent, list) {
                     btn.id = "climeBTN#" + i.id
                     btn.addEventListener('click', function () {
                         console.log("cLimed")
-                        console.log(player)
+                        // console.logg(player)
 
                         btn.innerHTML = ''
                         btn.appendChild(spinner())
@@ -551,7 +659,7 @@ function displayGameRools(perent, list) {
                 }
             } else {
                 // const tbData2 = document.createElement('td')
-                tbData2.textContent = i.wName
+                tbData2.textContent = i.wName?i.wName +'('+ i.winnerId + ")":''
                 tbRow.appendChild(tbData2)
 
             }
@@ -565,6 +673,36 @@ function displayGameRools(perent, list) {
 
 }
 
+// notification showing function ex : showNotify('Messege')
+function showNotify(message) {
+    const notify = document.createElement("div");
+    notify.className = "notify";
+    notify.innerText = message;
+
+    document.body.appendChild(notify);
+
+    setTimeout(() => {
+        notify.remove();
+    }, 5000);
+}
+
+
+// Error Notification showing function ex : showError('Error Messege')
+function showError(message) {
+    const notify = document.createElement("div");
+    notify.className = "error-notify";
+    notify.innerText = message;
+
+    document.body.appendChild(notify);
+
+    setTimeout(() => {
+        notify.remove();
+    }, 5000);
+}
+
+
+
+
 
 
 // Sockets => connections to server <=======================> server connections <=====================================================================================
@@ -573,43 +711,52 @@ function displayGameRools(perent, list) {
 // Receive updated players list
 socket.on('hostJoined', ({ newHost, types_of_wins }) => {
     player = newHost
-    console.table(newHost)
-    console.table(types_of_wins)
+    // console.table(newHost)
+    // console.table(types_of_wins)
     hostPageLoad()
 
     tempRoolsList.push(...types_of_wins.filter(i => i.isChecked))
-    console.table(tempRoolsList)
+    // console.table(tempRoolsList)
 
     showGameRoolsHost(types_of_wins)
 
 });
 
-// Listen for players joine
+// Listen for players joine (for player UI)
 socket.on('playerJoined', (newPlayer) => {
     player = newPlayer
     document.getElementById('displyPlayerName').textContent = player.name
     document.getElementById('displyPlayerId').textContent = player.id
 
-    console.table(player)
+    // console.table(player)
 
 
 });
 
+
+socket.on('playerJoinedNotify', ({ name, id }) => {
+    if (id != player.id) {
+        showNotify(name + " Joined")
+    }
+})
+
 // Listen for players list
 socket.on('playersList', (players) => {
-    console.log('Players in this game:', players);
+    // console.logg('Players in this game:', players);
     // alert("players", players)
     if (String(player.role) === 'host') {
+
+        joinedPlayersListForHost = players
 
         if (players.length >= 2) {
             document.getElementById('startGameHostBtn').classList.remove('d-none')
         }
 
-        const joinedPlayersListForHost = document.getElementById("joinedPlayersListForHost")
+        const joinedPlayersListEleForHost = document.getElementById("joinedPlayersListForHost")
         document.getElementById('displyCountOfAllPlayersHost').textContent = players.length
-        display_joined_players_list(joinedPlayersListForHost, players)
+        display_joined_players_list(joinedPlayersListEleForHost, joinedPlayersListForHost)
         document.getElementById('waitingForPlayersText').classList.add('d-none')
-
+        allPlayersReadyStatusUpdateFunction()
     } else {
         jonedGame()
         document.getElementById('joinedPlayersCount').textContent = players.length
@@ -617,10 +764,42 @@ socket.on('playersList', (players) => {
 
 });
 
+
+// for HOST ONLY
+socket.on("ReadyORPsaaRequestTOHost", ({playerDetails, gamePlayersList}) => {
+
+    // console.table(playerDetails)
+
+    // Stop Callnumber function if its run - player pass the game
+    if (!playerDetails.isReady) {
+        if (intervalID) {
+            stopCallNum()
+        }
+
+        // document.getElementById('displayGamePassedPlayerNameHost').
+        const text123 = 'Game Passed By Player ' + playerDetails.name + '(' + playerDetails.id + ')'
+        showError(text123)
+
+    }
+
+    //Update joined players list with new statues
+    joinedPlayersListForHost = gamePlayersList
+
+    //change game pass or start satatus and update UI
+    allPlayersReadyStatusUpdateFunction()
+
+    //Update the Player UI with updated list
+    const joinedPlayersListEleForHost = document.getElementById("joinedPlayersListForHost")
+    display_joined_players_list(joinedPlayersListEleForHost, joinedPlayersListForHost)
+
+
+
+})
+
 // Receive personal notifications
 socket.on('personalNotification', (msg) => {
-    console.log('Notification for me:', msg);
-    alert(msg);
+    // console.logg('Notification for me:', msg);
+    showNotify(msg);
 });
 
 // Call number notifications
@@ -632,6 +811,7 @@ socket.on('callNotification', (numberList) => {
 
         if (String(player.role) === 'host') {
             document.getElementById("callNumBtn").innerHTML = 'Call Number'
+            document.getElementById("callNumBtn").disabled = false
 
             const calledNumbersListForHost = document.getElementById("calledNumbersListForHost")
             calledNumbersListForHost.classList.remove('d-none')
@@ -641,11 +821,13 @@ socket.on('callNotification', (numberList) => {
             calledNumbersList.classList.remove('d-none')
             display_called_numbers(calledNumbersList, numberList)
         }
+        if (isTimeSetToCallNum) { setIntervalForCallNum() }
+
     } else {
         if (intervalID) {
-            clearIntervalForCallNum()
+            stopCallNum()
         }
-        alert('Call number limit Exceed.')
+        showError('Call number limit Exceed.')
         document.getElementById('callNumBtn').classList.add('d-none')
     }
 
@@ -653,8 +835,8 @@ socket.on('callNotification', (numberList) => {
 
 // Error messege
 socket.on('callNotificationNotStarted', (message) => {
-    alert(message)
-    alert('Start Game First')
+    showError(message)
+    showError('Start Game First')
     document.getElementById("callNumBtn").innerHTML = 'Call Number'
 
 });
@@ -676,7 +858,7 @@ socket.on('gameStarted', ({ message, updatedRoolsList }) => {
         gameRoolsDisply.classList.add('d-none')
         gameRoolsHeading.textContent = 'Game Rolls'
         document.getElementById("startGameHostBtn").innerHTML = "Start Game"
-        console.table(updatedRoolsList)
+        // console.table(updatedRoolsList)
         displayGameRools(displyWinnerReqsTableHost, updatedRoolsList)
         document.getElementById('displyWinnerReqsTableHost').classList.remove('d-none')
 
@@ -684,7 +866,8 @@ socket.on('gameStarted', ({ message, updatedRoolsList }) => {
 
     }
 
-    alert(message); // update UI or show notification
+    showNotify(message)
+    // alert(); // update UI or show notification
 });
 
 // Listen for updated winner list
@@ -706,18 +889,44 @@ socket.on('revisedWinnerList', ({ list }) => {
 
 })
 
-socket.on('GameCompleated', player => {
-    console.log('>>>>>winner : ', player)
+socket.on('playerClimeDisply',({ii}) =>{
+
+    // hear 'ii' is the rool having its climed player name and id
+    console.log('ii',ii)
+    
+    showNotify(ii.wName + ' is climed ' + ii.name)
 
 
-    document.getElementById('houseWinnerName').textContent = player.name
-    document.getElementById('houseWinnerCard').classList.remove('d-none')
+})
+
+
+socket.on('GameCompleated', winner => {
+    console.log('>>>>>winner : ', winner)
+
+    if (player.role === 'player') {
+
+        const winnerCardPlayerEle = document.getElementById('houseWinnerCard')
+        winnerCardPlayerEle.classList.remove('d-none')
+
+        for (let i of displyWinnerToAll(winner.name)) {
+            winnerCardPlayerEle.appendChild(i)
+        }
+    } else {
+        stopCallNum()
+        const winnerCardHostEle = document.getElementById('houseWinnerCardHost')
+        winnerCardHostEle.classList.remove('d-none')
+
+        for (let i of displyWinnerToAll(winner.name)) {
+            winnerCardHostEle.appendChild(i)
+        }
+    }
+
 })
 
 // Error messge for claime win not valid
 socket.on('NotValidError', ({ message, id }) => {
 
-    alert(message)
+    showError(message)
     if (id) {
         const btn = document.getElementById('climeBTN#' + id)
         btn.innerHTML = ''
@@ -730,23 +939,29 @@ socket.on('ticketNumCheck', ({ ticketNumHTMLEleId }) => {
 })
 
 socket.on('ErrorInTicketNumCheck', ({ message }) => {
-    alert(message)
+    showError(message)
+})
+
+//player left notification
+socket.on('playerLeftNotify', (name)=>{
+    showError(name+" Left The Game.")
 })
 
 // Listen for server instruction to load a page
 socket.on('gameEnded', ({ message }) => {
 
-    alert(message)
+    showError(message)
     window.location.reload()
 });
 
 // Player exsit messege sent to server
 window.addEventListener('unload', () => {
     const { id, joined_game_id } = player
-    alert('You Left the game')
+    showError('You Left the game')
     socket.emit('playerLeft', {
         id: id,       // your player's id
-        gameId: joined_game_id // current game id
+        gameId: joined_game_id, // current game id
+        name : player.name
     });
 });
 
