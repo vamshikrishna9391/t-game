@@ -169,7 +169,6 @@ function setIntervalForCallNum() {
 
 function clearIntervalForCallNum() {
     clearInterval(intervalID)
-
 }
 
 
