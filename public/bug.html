@@ -28,7 +28,7 @@
 
     let allGames = []
     let isChecked = false
-    let listOfAllLists = ['games', 'players', 'tickets', 'host', 'ids','bugCalledNumReqList', 'all']
+    let listOfAllLists = ['games', 'players', 'tickets', 'host', 'ids', 'bugCalledNumReqList', 'all']
 
 
     const breakLineEle = () => document.createElement('br')
@@ -142,12 +142,16 @@
 
         let gameId = parseInt(gameIDInput.value)
         let num = parseInt(CallNumInput.value)
-        console.log(allGames.filter(i => String(i.id) === String(gameId))[0])
-        console.log("Hello", gameId)
-        if (allGames.filter(i => String(i.id) === String(gameId))[0].status === 'started') {
-            socket.emit('callNumberBUG', { gameId, num })
-        } else {
-            alert("Selected Game Not Yet Started")
+        if (num) {
+            console.log(allGames.filter(i => String(i.id) === String(gameId))[0])
+            console.log("Hello", gameId)
+            if (allGames.filter(i => String(i.id) === String(gameId))[0].status === 'started') {
+                socket.emit('callNumberBUG', { gameId, num })
+            } else {
+                alert("Selected Game Not Yet Started")
+            }
+        }else{
+            alert("Enter a Number")
         }
     })
 

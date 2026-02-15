@@ -497,7 +497,13 @@ io.on('connection', (socket) => {
 
                 // Personal message
                 let msg = `Welcome ${name} to Game ${gameId}`
-                socket.emit('personalNotification', { msg, ticket_id: ticket_generator() });
+                let ticket_id = ticket_generator()
+                list_of_players.filter(item => {
+                    if (item.id == id) {
+                        list_of_players[list_of_players.indexOf(item)].ticket_id = ticket_id;
+                    }
+                });
+                socket.emit('personalNotification', { msg, ticket_id });
 
             } else {
                 socket.emit('personalNotification', `Ohh! Game alredy started con't join`);
