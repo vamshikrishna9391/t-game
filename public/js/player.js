@@ -983,12 +983,12 @@ window.addEventListener('unload', () => {
     
 });
 
-// window.addEventListener("beforeunload", function (e) {
-//     console.log("unload confirmation")
+window.addEventListener("beforeunload", function (e) {
+    console.log("unload confirmation")
 
-//     e.preventDefault();
-//     e.returnValue = "";   // Required for browser confirmation popup
-// });
+    e.preventDefault();
+    e.returnValue = "";   // Required for browser confirmation popup
+});
 
 
 
