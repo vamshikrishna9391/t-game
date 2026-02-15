@@ -473,6 +473,7 @@ io.on('connection', (socket) => {
     // Join game (player or host)
     socket.on('joinGame', ({ id, name, gameId }) => {
         const game_ = list_of_all_games.filter(g => String(g.id) === String(gameId))[0];
+        const host = list_of_hosts.filter(h => String(h.game_id) === String(gameId))[0]
 
         console.log('=> game : ', game_)
 
@@ -490,7 +491,7 @@ io.on('connection', (socket) => {
                 const joinedPlayers = list_of_players.filter(p => p.joined_game_id === gameId);
 
                 // ✅ Send to everyone in this room (players + host)
-                io.to(`game-${gameId}`).emit('playersList', joinedPlayers);
+                io.to(`game-${gameId}`).emit('playersList', {joinedPlayers, host});
 
                 //Send an player join notification to all palyers in game
                 io.to(`game-${gameId}`).emit('playerJoinedNotify', { name, id })

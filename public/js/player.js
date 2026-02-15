@@ -749,9 +749,12 @@ socket.on('playerJoinedNotify', ({ name, id }) => {
 })
 
 // Listen for players list
-socket.on('playersList', (players) => {
+socket.on('playersList', ({joinedPlayers, host}) => {
     // console.logg('Players in this game:', players);
     // alert("players", players)
+    const players = joinedPlayers
+
+    document.getElementById('hostNameDispInPlayer').textContent = host.name
     if (String(player.role) === 'host') {
 
         joinedPlayersListForHost = players
