@@ -20,6 +20,7 @@
 <body>
     <section id="bugMainSection"></section>
 </body>
+
 <script type="text/javascript">
     const socket = io(); // connect to server
 
@@ -27,39 +28,86 @@
 
     let allGames = []
     let isChecked = false
-    let listOfAllLists = ['games', 'players', 'tickets', 'host', 'ids', 'all']
+    let listOfAllLists = ['games', 'players', 'tickets', 'host', 'ids','bugCalledNumReqList', 'all']
 
 
     const breakLineEle = () => document.createElement('br')
 
     function createTable(data) {
 
-        if (!data || data.length === 0) return document.createTextNode("No data");
+
+        // If data is null or primitive → return text
+        if (data === null || typeof data !== "object") {
+            return document.createTextNode(String(data));
+        }
 
         const table = document.createElement("table");
         table.border = "1";
+        table.style.borderCollapse = "collapse";
+        table.style.margin = "10px 0";
 
-        // Create header row
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
+        // If array
+        if (Array.isArray(data)) {
+            if (data.length === 0) {
+                return document.createTextNode("Empty Array");
+            }
 
-        Object.keys(data[0]).forEach(key => {
-            const th = document.createElement("th");
-            th.textContent = key;
-            headerRow.appendChild(th);
-        });
+            // If array of objects → create header
+            if (typeof data[0] === "object" && data[0] !== null) {
+                const headerRow = document.createElement("tr");
 
-        // Create body rows
-        const tbody = table.createTBody();
-        data.forEach(item => {
-            const row = tbody.insertRow();
-            Object.values(item).forEach(value => {
-                const cell = row.insertCell();
-                cell.textContent = value;
+                Object.keys(data[0]).forEach(key => {
+                    const th = document.createElement("th");
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                });
+
+                table.appendChild(headerRow);
+
+                data.forEach(item => {
+                    const row = document.createElement("tr");
+
+                    Object.keys(item).forEach(key => {
+                        const td = document.createElement("td");
+                        td.appendChild(createTable(item[key])); // recursive
+                        row.appendChild(td);
+                    });
+
+                    table.appendChild(row);
+                });
+
+            } else {
+                // Simple array
+                data.forEach(item => {
+                    const row = document.createElement("tr");
+                    const td = document.createElement("td");
+                    td.appendChild(createTable(item)); // recursive
+                    row.appendChild(td);
+                    table.appendChild(row);
+                });
+            }
+
+        } else {
+            // If object
+            Object.keys(data).forEach(key => {
+                const row = document.createElement("tr");
+
+                const keyCell = document.createElement("td");
+                keyCell.textContent = key;
+                keyCell.style.fontWeight = "bold";
+
+                const valueCell = document.createElement("td");
+                valueCell.appendChild(createTable(data[key])); // recursive
+
+                row.appendChild(keyCell);
+                row.appendChild(valueCell);
+
+                table.appendChild(row);
             });
-        });
+        }
 
         return table;
+
     }
 
     let gameIDInput = document.createElement('select')
@@ -178,7 +226,7 @@
 
                 for (let i of data) {
                     gameIDs.push(i.id)
-                }   
+                }
 
                 allGames = data
                 appendGameIdOptions(gameIDs.reverse())
@@ -208,7 +256,7 @@
 
                 let temp = data
 
-                if(data.all){
+                if (data.all) {
                     temp = [data.all]
                 }
 

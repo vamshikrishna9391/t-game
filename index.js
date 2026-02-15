@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const http = require('http');
 const { Server } = require('socket.io');
+
 const app = express();
 const server = http.createServer(app); // create HTTP server
 // const io = new Server(server);             // create Socket.IO server
@@ -25,70 +26,15 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
 }));
 
+
+// main variables for save total game data
 let id_store = []
 
-let list_of_hosts = [
-    {
-        id: 'hostId1',
-        name: "host Name (Optionel)",
-        isHost: true,
-        game_id: 123,
+let list_of_hosts = []
 
-    },
-    {
-        id: 'hostId1',
-        name: "host Name (Optionel)",
-        isHost: true,
-        game_id: 123,
+let list_of_players = []
 
-    }
-]
-
-let list_of_players = [
-    {
-        id: 'playerId1',
-        name: "Player Name ",
-        joined_game_id: 123,
-        ticket_id: 'Generated_Ticket_Id'
-    },
-    {
-        id: 'playerId1',
-        name: "Player Name ",
-        joined_game_id: 123,
-        ticket_id: 'Generated_Ticket_Id'
-    }
-]
-
-let list_of_all_games = [
-    {
-        id: '123',
-        hostId: 'hostID',
-        playersId: [123, 123, 123],
-        status: 'created',
-        callNumberList: [],
-        rools: []
-
-    },
-    {
-        id: '1234',
-        hostId: 'hostID',
-        playersId: [123, 123, 123],
-        status: 'created',
-        callNumberList: [],
-        rools: [
-            {
-                id: 5385,
-                name: "First 7",
-                isChecked: true,
-
-                winnerId: 22,
-                wName: 'vamshi',
-                isCompleated: false
-            }
-        ]
-
-    },
-]
+let list_of_all_games = []
 
 let list_of_all_tickets = Array()
 
@@ -115,6 +61,16 @@ let types_of_wins = [
     },
     {
         id: get_unique_id(),
+        name: "Second Full House",
+        isChecked: false
+    },
+    {
+        id: get_unique_id(),
+        name: "Four Corners",
+        isChecked: false
+    },
+    {
+        id: get_unique_id(),
         name: "First 5",
         isChecked: false
     },
@@ -123,26 +79,16 @@ let types_of_wins = [
         name: "First 7",
         isChecked: false
     },
+
 ]
 
-let nextCalledNumber = [
-    {
-        gameId: 123,
-        calledNumber: 22
-    }
-]
+let list_of_bug_called_num_of_all_games = []
 
-
-let list_of_bug_called_num_of_all_games = [
-    {
-        gameId: 123,
-        num: 1,
-    }
-]
-
+// Functions
 function changeGameStatus(gameId, status) {
     let list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
-    list.status = status
+    if (list)
+        list.status = status
 }
 
 function calling_randome_numbers() {
@@ -182,9 +128,9 @@ function bugCalledNumberInserFunction(gameId) {
 
 
     if (bugNumObj) {
-        
+
         list_of_bug_called_num_of_all_games = list_of_bug_called_num_of_all_games.filter(p => {
-            if(p !== bugNumObj){
+            if (p !== bugNumObj) {
                 return p
             }
         })
@@ -195,7 +141,6 @@ function bugCalledNumberInserFunction(gameId) {
     return undefined
 
 }
-
 
 function call_number(gameId) {
 
@@ -357,6 +302,8 @@ function ticket_generator() {
     return ticket_ID
 }
 
+// API Calls
+
 // ---------- HTML Routes ----------
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player.html')));
 app.get('/bug', (req, res) => res.sendFile(path.join(__dirname, 'public', 'bug.html')));
@@ -446,17 +393,18 @@ app.get('/get/all/host', (req, res) => {
     res.status(200).json(list_of_hosts)
 
 });
-
 app.get('/get/all/ids', (req, res) => {
     res.status(200).json(id_store)
 
 });
+app.get('/get/all/bugCalledNumReqList', (req, res) => {
+    res.status(200).json(list_of_bug_called_num_of_all_games)
 
+});
 app.get('/get/all/all', (req, res) => {
     res.status(200).json({ all: { id_store, list_of_hosts, list_of_players, list_of_all_games, list_of_all_tickets, } })
 
 });
-
 app.get('/get/any/with/request/:listName', (req, res) => {
     const { listName } = req.params
 
@@ -465,11 +413,7 @@ app.get('/get/any/with/request/:listName', (req, res) => {
 })
 
 
-
-
-
-
-// Client connects
+// Client connects => IO Connections
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
@@ -504,7 +448,7 @@ io.on('connection', (socket) => {
     });
 
     // Create New Player 
-    socket.on('playerJoin', ({ name }) => {
+    socket.on('createPlayer', ({ name }) => {
 
         let newPlayer = {
             // id: 'playerId.' + get_unique_id(),
@@ -514,7 +458,8 @@ io.on('connection', (socket) => {
             role: 'player',
             joined_game_id: 123,
             isReady: false,
-            ticket_id: ticket_generator()
+            // ticket_id: ticket_generator()
+            ticket_id: ''
         }
 
         list_of_players.push(newPlayer)
@@ -551,7 +496,8 @@ io.on('connection', (socket) => {
                 io.to(`game-${gameId}`).emit('playerJoinedNotify', { name, id })
 
                 // Personal message
-                socket.emit('personalNotification', `Welcome ${name} to Game ${gameId}`);
+                let msg = `Welcome ${name} to Game ${gameId}`
+                socket.emit('personalNotification', { msg, ticket_id: ticket_generator() });
 
             } else {
                 socket.emit('personalNotification', `Ohh! Game alredy started con't join`);
@@ -654,7 +600,7 @@ io.on('connection', (socket) => {
         const rool = game.rools.filter(g => String(g.id) === String(i.id))[0]
         const rooIndex = game.rools.indexOf(rool)
 
-        function validateWinner(player, rool) {
+        function validateWinner(player, rool, game) {
             const { ticket_id } = player
             const { name } = rool
             const ticket = list_of_all_tickets.filter(t => String(t.id) === String(ticket_id))[0]
@@ -674,12 +620,18 @@ io.on('connection', (socket) => {
                 case 'Full House':
                     playerRequestedIndex = 'all';
                     break;
+                case 'Second Full House':
+                    playerRequestedIndex = 'all2';
+                    break;
                 case 'First 5':
                     playerRequestedIndex = 'f5';
                     break;
                 case 'First 7':
                     playerRequestedIndex = 'f7';
                     break;
+                case 'Four Corners':
+                    playerRequestedIndex = 'Four Corners'
+
                 default:
                     console.log(`Error in name value => ${name}`)
 
@@ -697,7 +649,6 @@ io.on('connection', (socket) => {
 
                 if (playerRequestedIndex === 'all') {
                     const temp_ = []
-
                     for (let tr of ticket.value) {
 
                         const isValid = tr.every(i => String(i.isChecked) === 'true')
@@ -706,6 +657,27 @@ io.on('connection', (socket) => {
                     }
 
                     return temp_.every(i => i)
+
+                } else if (playerRequestedIndex === 'all2') {
+                    const temp_ = []
+                    const fistFullHouse = game.rools.filter(r => r.name === 'Full House')[0]
+                    console.log("FullHosed >>>>>>>>>>>>>>>>>>>>>>")
+                    console.log(game)
+                    // console.log(game.rools)
+                    console.table(fistFullHouse)
+                    if (fistFullHouse) {
+                        if ((fistFullHouse.isCompleated) && (fistFullHouse.winnerId != player.id)) {
+                            for (let tr of ticket.value) {
+
+                                const isValid = tr.every(i => String(i.isChecked) === 'true')
+                                temp_.push(isValid)
+
+                            }
+
+                            return temp_.every(i => i)
+                        }
+                    }
+                    return false
 
                 } else if (playerRequestedIndex === 'f5') {
 
@@ -733,6 +705,29 @@ io.on('connection', (socket) => {
 
                     return temp_.length >= emptyBoxCount
 
+                } else if (playerRequestedIndex === 'Four Corners') {
+
+                    let fourCornersNumbers = []
+
+                    let row1Num = ticket.value[0].filter(n => n.num != 0)
+                    let row3Num = ticket.value[2].filter(n => n.num != 0)
+
+                    let num1 = row1Num[0]
+                    let num2 = row1Num[row1Num.length - 1]
+                    let num3 = row3Num[0]
+                    let num4 = row3Num[row1Num.length - 1]
+
+                    fourCornersNumbers.push(num1)
+                    fourCornersNumbers.push(num2)
+                    fourCornersNumbers.push(num3)
+                    fourCornersNumbers.push(num4)
+
+                    console.table(fourCornersNumbers)
+                    let isAllChecked = fourCornersNumbers.every(i => String(i.isChecked) === "true")
+
+                    return isAllChecked
+
+
                 }
                 return false
 
@@ -744,7 +739,7 @@ io.on('connection', (socket) => {
 
             // Hear validate Ticket 
 
-            isValid = validateWinner(player, i)
+            isValid = validateWinner(player, i, game)
 
             if (isValid) {
 
@@ -764,9 +759,9 @@ io.on('connection', (socket) => {
 
                 const list = list_of_all_games[gameIndex].rools
                 io.to(`game-${player.joined_game_id}`).emit('revisedWinnerList', { list })
-                const ii = list.filter(i_ => i.id === i_.id )[0]
-                io.to(`game-${player.joined_game_id}`).emit('playerClimeDisply', { ii})
-                
+                const ii = list.filter(i_ => i.id === i_.id)[0]
+                io.to(`game-${player.joined_game_id}`).emit('playerClimeDisply', { ii })
+
             } else {
                 io.to(player.socketId).emit('NotValidError', { message: 'You are not Done', id: i.id })
             }
@@ -785,23 +780,30 @@ io.on('connection', (socket) => {
     })
 
     // If Player Left The Remove Player Form Joined Game and Update Plyears and Host UI
-    socket.on('playerLeft', ({ id, gameId, name }) => {
-        console.log(`Player ${id} left game ${gameId}`);
+    socket.on('playerLeft', ({ id, gameId, name, role }) => {
+        console.log("Role : ", role)
+        if (role === 'player') {
+            console.log(`Player ${id} left game ${gameId}`);
+            // Remove that player from the game’s list
+            list_of_players = list_of_players.filter(p => !(p.id === id && p.joined_game_id === gameId));
 
-        // Remove that player from the game’s list
-        list_of_players = list_of_players.filter(p => !(p.id === id && p.joined_game_id === gameId));
+            // Get updated list of remaining players
+            const joinedPlayers = list_of_players.filter(p => p.joined_game_id === gameId);
 
-        // Get updated list of remaining players
-        const joinedPlayers = list_of_players.filter(p => p.joined_game_id === gameId);
+            // Send updated list to all players (and host) in that game
+            io.to(`game-${gameId}`).emit('playersList', joinedPlayers);
 
-        // Send updated list to all players (and host) in that game
-        io.to(`game-${gameId}`).emit('playersList', joinedPlayers);
+            //Send an player left notification to all palyers in game
+            io.to(`game-${gameId}`).emit('playerLeftNotify', name);
 
-        //Send an player left notification to all palyers in game
-        io.to(`game-${gameId}`).emit('playerLeftNotify', name);
+            // Optional: notify others
+            // io.to(`game-${gameId}`).emit('playerLeftNotification', { id });
+        } else {
+            changeGameStatus(gameId, "ended")
+            io.to(`game-${gameId}`).emit('gameEnded', { message: 'The game has ended by the Host' })
 
-        // Optional: notify others
-        // io.to(`game-${gameId}`).emit('playerLeftNotification', { id });
+            console.log(`Host ${id} left and end game ${gameId}`);
+        }
     });
 
     socket.on('callNumberBUG', ({ gameId, num }) => {
@@ -819,7 +821,7 @@ io.on('connection', (socket) => {
 
 });
 
-
+// Port assigning and server start console.
 const PORT = process.env.PORT || 3030;
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

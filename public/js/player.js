@@ -87,6 +87,11 @@ socketStatusManager()
 
 
 
+    
+let savedName = JSON.parse(localStorage.getItem("playerName"))
+
+if(savedName)
+    document.getElementById('name').value = savedName
 
 
 
@@ -220,7 +225,7 @@ function joinAsHost() {
         socket.emit('hostJoin', { name })
 
     } else {
-        const win = confirm("Enter Your Good Name");
+        showError("Enter Your Good Name");
     }
 
 
@@ -249,10 +254,10 @@ function joinAsPlayer() {
         gameEntrySection.classList.add('d-none')
 
 
-        socket.emit('playerJoin', { name })
+        socket.emit('createPlayer', { name })
 
     } else {
-        const win = confirm("Enter Your Good Name");
+        showError("Enter Your Good Name");
 
     }
 
@@ -477,8 +482,8 @@ function display_called_numbers(perentDiv, list) {
 }
 
 function allPlayersReadyStatusUpdateFunction() {
-
-    isAllPlayersReady = joinedPlayersListForHost.every(item => item.isReady)
+    
+    isAllPlayersReady = joinedPlayersListForHost.length != 0 ? joinedPlayersListForHost.every(item => item.isReady):false
 
     const statusEle = document.getElementById("showAllPlayersReadyStatus")
     statusEle.textContent = isAllPlayersReady ? "✅" : "🔴"
@@ -658,7 +663,7 @@ function displayGameRools(perent, list) {
                 }
             } else {
                 // const tbData2 = document.createElement('td')
-                tbData2.textContent = i.wName?i.wName +'('+ i.winnerId + ")":''
+                tbData2.textContent = i.wName ? i.wName + '(' + i.winnerId + ")" : ''
                 tbRow.appendChild(tbData2)
 
             }
@@ -710,7 +715,10 @@ function showError(message) {
 // Receive updated players list
 socket.on('hostJoined', ({ newHost, types_of_wins }) => {
     player = newHost
-    // console.table(newHost)
+
+    localStorage.setItem("playerName",JSON.stringify(player.name))
+
+    console.table(newHost)
     // console.table(types_of_wins)
     hostPageLoad()
 
@@ -724,6 +732,7 @@ socket.on('hostJoined', ({ newHost, types_of_wins }) => {
 // Listen for players joine (for player UI)
 socket.on('playerJoined', (newPlayer) => {
     player = newPlayer
+    localStorage.setItem("playerName",JSON.stringify(player.name))
     document.getElementById('displyPlayerName').textContent = player.name
     document.getElementById('displyPlayerId').textContent = player.id
 
@@ -765,7 +774,7 @@ socket.on('playersList', (players) => {
 
 
 // for HOST ONLY
-socket.on("ReadyORPsaaRequestTOHost", ({playerDetails, gamePlayersList}) => {
+socket.on("ReadyORPsaaRequestTOHost", ({ playerDetails, gamePlayersList }) => {
 
     // console.table(playerDetails)
 
@@ -796,8 +805,12 @@ socket.on("ReadyORPsaaRequestTOHost", ({playerDetails, gamePlayersList}) => {
 })
 
 // Receive personal notifications
-socket.on('personalNotification', (msg) => {
-    // console.logg('Notification for me:', msg);
+socket.on('personalNotification', ({msg,ticket_id}) => {
+    
+    //assign ticket ID 
+    player.ticket_id = ticket_id
+
+    //notification
     showNotify(msg);
 });
 
@@ -888,11 +901,11 @@ socket.on('revisedWinnerList', ({ list }) => {
 
 })
 
-socket.on('playerClimeDisply',({ii}) =>{
+socket.on('playerClimeDisply', ({ ii }) => {
 
     // hear 'ii' is the rool having its climed player name and id
-    console.log('ii',ii)
-    
+    console.log('ii', ii)
+
     showNotify(ii.wName + ' is climed ' + ii.name)
 
 
@@ -942,28 +955,40 @@ socket.on('ErrorInTicketNumCheck', ({ message }) => {
 })
 
 //player left notification
-socket.on('playerLeftNotify', (name)=>{
-    showError(name+" Left The Game.")
+socket.on('playerLeftNotify', (name) => {
+    showError(name + " Left The Game.")
 })
 
 // Listen for server instruction to load a page
 socket.on('gameEnded', ({ message }) => {
-
     showError(message)
-    window.location.reload()
+    if( player.role === 'player' ){
+        window.location.reload()
+    }
 });
 
 // Player exsit messege sent to server
 window.addEventListener('unload', () => {
-    const { id, joined_game_id } = player
+    console.log("unloaded")
+    const { id,role } = player
     showError('You Left the game')
+
     socket.emit('playerLeft', {
         id: id,       // your player's id
-        gameId: joined_game_id, // current game id
-        name : player.name
+        gameId: role === 'player' ? player.joined_game_id : player.game_id, // current game id
+        name: player.name,
+        role
     });
+
+    
 });
 
+// window.addEventListener("beforeunload", function (e) {
+//     console.log("unload confirmation")
+
+//     e.preventDefault();
+//     e.returnValue = "";   // Required for browser confirmation popup
+// });
 
 
 

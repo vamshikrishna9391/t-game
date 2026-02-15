@@ -1,3 +1,5 @@
+
+
 .d-none {
     display: none !important;
 }
@@ -450,7 +452,7 @@ h3 {
 
 
 #gameRoolsDisplyCard {
-    width: 280px;
+    max-width: 400px;
     display: flex;
     flex-wrap: wrap;
     margin-right: 10px;
@@ -467,7 +469,7 @@ h3 {
 }
 
 .card {
-    min-width: 100px;
+    min-width: 200px;
 }
 
 #toglleCallNumberAndEndGameBtns {
@@ -922,4 +924,24 @@ input:hover {
   10% { opacity: 1; transform: translate(-50%, 0); }
   90% { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, 10px); }
+}
+
+
+
+
+
+
+
+
+/* Player Name Style */
+
+.player-name{
+    font-size:26px;
+    font-weight:800;
+    letter-spacing:2px;
+    text-transform:unset;
+
+    background:linear-gradient(90deg,#7940b5,rgb(8, 255, 8), #6ca858,#6a11cb);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 }
