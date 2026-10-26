@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script> -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -117,6 +117,7 @@
 
                     <div class="joined-players-table-main-card">
                         <h4 class="box">Joined Players List ( <span id="displyCountOfAllPlayersHost">0</span> )</h4>
+                        <h4 class="box"> Dont Allow Players For Join Game : <input id="dontAllowPlayersToJoinGameHost" type="checkbox"/></h4>
                         <div class="joined-players-table-card">
                             <table class="joined-players-table">
                                 <thead>
@@ -124,6 +125,7 @@
                                         <th>id</th>
                                         <th>Name</th>
                                         <th>Status <span id="showAllPlayersReadyStatus"></span></th>
+                                        <th>Remove </th>
                                     </tr>
                                 </thead>
                                 <p id="waitingForPlayersText" class="noPlayer gradient-text">Waiting for players to join
@@ -212,6 +214,7 @@
     </section>
 </body>
 
+<script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="/js"></script>
 
 </html>

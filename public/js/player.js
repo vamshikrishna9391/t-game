@@ -42,9 +42,46 @@ let joinedPlayersListForHost = []
 
 let isAllPlayersReady = false
 
+let isTicketDisplayed = false
+
 const gameEntrySection = document.getElementById('gameEntrySection')
 const joinAsHostSection = document.getElementById('joinAsHostSection')
 const joinAsPlayerSection = document.getElementById('joinAsPlayerSection')
+const dontAllowPlayersToJoinGameHost = document.getElementById('dontAllowPlayersToJoinGameHost')
+
+// dontAllowPlayersToJoinGameHost.onclick = (event) => {
+
+//     const checkStatus = dontAllowPlayersToJoinGameHost.checked
+//     const gameId = player.game_id
+
+//     socket.emit('dontAllowPlayers', { checkStatus,gameId })
+
+
+// }
+
+dontAllowPlayersToJoinGameHost.onclick = async (event) => {
+    console.log("hello", event);
+    const gameId = player.game_id
+    try {
+        const response = await fetch("/api/settings", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                allowPlayersToJoin: dontAllowPlayersToJoinGameHost.checked,
+                gameId
+            })
+        });
+
+        const result = await response.json();
+
+        console.log("Settings updated:", result);
+    } catch (error) {
+        console.error("Failed to update settings:", error);
+    }
+};
+
 
 
 function socketStatusManager() {
@@ -87,10 +124,10 @@ socketStatusManager()
 
 
 
-    
+
 let savedName = JSON.parse(localStorage.getItem("playerName"))
 
-if(savedName)
+if (savedName)
     document.getElementById('name').value = savedName
 
 
@@ -482,8 +519,8 @@ function display_called_numbers(perentDiv, list) {
 }
 
 function allPlayersReadyStatusUpdateFunction() {
-    
-    isAllPlayersReady = joinedPlayersListForHost.length != 0 ? joinedPlayersListForHost.every(item => item.isReady):false
+
+    isAllPlayersReady = joinedPlayersListForHost.length != 0 ? joinedPlayersListForHost.every(item => item.isReady) : false
 
     const statusEle = document.getElementById("showAllPlayersReadyStatus")
     statusEle.textContent = isAllPlayersReady ? "✅" : "🔴"
@@ -494,29 +531,43 @@ function allPlayersReadyStatusUpdateFunction() {
 function display_joined_players_list(perentDiv, numList) {
 
     perentDiv.innerHTML = "";
+
     function create_num_ele(item) {
-        const tRow = document.createElement('tr')
-        tRow.classList.add('joined-players-table-body-row')
+        const tRow = document.createElement('tr');
+        tRow.classList.add('joined-players-table-body-row');
 
-        const idEle = document.createElement('td')
-        idEle.textContent = item.id
-        tRow.appendChild(idEle)
+        const idEle = document.createElement('td');
+        idEle.textContent = item.id;
+        tRow.appendChild(idEle);
 
-        const nameEle = document.createElement('td')
-        nameEle.textContent = item.name
-        tRow.appendChild(nameEle)
+        const nameEle = document.createElement('td');
+        nameEle.textContent = item.name;
+        tRow.appendChild(nameEle);
 
-        const status = document.createElement('td')
-        status.textContent = item.isReady ? "🟢" : "🔴"
-        tRow.appendChild(status)
+        const status = document.createElement('td');
+        status.textContent = item.isReady ? "🟢" : "🔴";
+        tRow.appendChild(status);
 
-        // console.logg("item : ", item)
+        const remove = document.createElement('td');
 
-        return tRow
+        const deletePlayerIcon = document.createElement('span');
+        deletePlayerIcon.textContent = "🗑️";
+        deletePlayerIcon.style.cursor = "pointer";
+
+        deletePlayerIcon.onclick = function () {
+            if (confirm(`Remove ${item.name} from the game?`)) {
+                removePlayerFormGame(item);
+            }
+        };
+
+        remove.appendChild(deletePlayerIcon);
+        tRow.appendChild(remove);
+
+        return tRow;
     }
 
     for (let num_item of numList) {
-        perentDiv.appendChild(create_num_ele(num_item))
+        perentDiv.appendChild(create_num_ele(num_item));
     }
 }
 
@@ -556,6 +607,8 @@ function endGameHost() {
     const { game_id } = player
     const gameId = game_id
     socket.emit('gameEnd', { gameId })
+    window.location.reload()
+
 }
 
 function validatePlayerTicket(i) {
@@ -704,6 +757,16 @@ function showError(message) {
     }, 5000);
 }
 
+function removePlayerFormGame(user) {
+    const { id, role, name } = user;
+
+    socket.emit("playerLeft", {
+        id,
+        gameId: role === 'player' ? user.joined_game_id : user.game_id, // current game id
+        name,
+        role
+    });
+}
 
 
 
@@ -716,7 +779,7 @@ function showError(message) {
 socket.on('hostJoined', ({ newHost, types_of_wins }) => {
     player = newHost
 
-    localStorage.setItem("playerName",JSON.stringify(player.name))
+    localStorage.setItem("playerName", JSON.stringify(player.name))
 
     console.table(newHost)
     // console.table(types_of_wins)
@@ -732,7 +795,7 @@ socket.on('hostJoined', ({ newHost, types_of_wins }) => {
 // Listen for players joine (for player UI)
 socket.on('playerJoined', (newPlayer) => {
     player = newPlayer
-    localStorage.setItem("playerName",JSON.stringify(player.name))
+    localStorage.setItem("playerName", JSON.stringify(player.name))
     document.getElementById('displyPlayerName').textContent = player.name
     document.getElementById('displyPlayerId').textContent = player.id
 
@@ -749,12 +812,15 @@ socket.on('playerJoinedNotify', ({ name, id }) => {
 })
 
 // Listen for players list
-socket.on('playersList', ({joinedPlayers, host}) => {
+socket.on('playersList', ({ joinedPlayers, host }) => {
     // console.logg('Players in this game:', players);
     // alert("players", players)
     const players = joinedPlayers
 
-    document.getElementById('hostNameDispInPlayer').textContent = host.name
+    console.log(joinedPlayers)
+
+    if (host)
+        document.getElementById('hostNameDispInPlayer').textContent = host.name
     if (String(player.role) === 'host') {
 
         joinedPlayersListForHost = players
@@ -808,12 +874,13 @@ socket.on("ReadyORPsaaRequestTOHost", ({ playerDetails, gamePlayersList }) => {
 })
 
 // Receive personal notifications
-socket.on('personalNotification', ({msg,ticket_id}) => {
-    
+socket.on('personalNotification', ({ msg, ticket_id }) => {
+
     //assign ticket ID 
     player.ticket_id = ticket_id
 
     //notification
+    console.log(msg)
     showNotify(msg);
 });
 
@@ -860,7 +927,11 @@ socket.on('callNotificationNotStarted', (message) => {
 socket.on('gameStarted', ({ message, updatedRoolsList }) => {
 
     if (player.role === 'player') {
-        document.getElementById('showTicketBtn').click()
+        if (!isTicketDisplayed) {
+            document.getElementById('showTicketBtn').click()
+            isTicketDisplayed = true
+
+        }
         document.getElementById('ticketAndCalledNumDivToggle').classList.remove('d-none')
         document.getElementById('loading1').classList.add("d-none")
         const displyWinnerReqsTable = document.getElementById('displyWinnerReqsTable')
@@ -873,7 +944,7 @@ socket.on('gameStarted', ({ message, updatedRoolsList }) => {
         gameRoolsDisply.classList.add('d-none')
         gameRoolsHeading.textContent = 'Game Rolls'
         document.getElementById("startGameHostBtn").innerHTML = "Start Game"
-        // console.table(updatedRoolsList)
+        console.table(updatedRoolsList)
         displayGameRools(displyWinnerReqsTableHost, updatedRoolsList)
         document.getElementById('displyWinnerReqsTableHost').classList.remove('d-none')
 
@@ -958,41 +1029,53 @@ socket.on('ErrorInTicketNumCheck', ({ message }) => {
 })
 
 //player left notification
-socket.on('playerLeftNotify', (name) => {
-    showError(name + " Left The Game.")
+socket.on('playerLeftNotify', ({ message, playerId }) => {
+
+    if (player.id === playerId)
+        window.location.reload()
+
+
+    showError(message)
 })
 
 // Listen for server instruction to load a page
 socket.on('gameEnded', ({ message }) => {
     showError(message)
-    if( player.role === 'player' ){
+    if (player.role === 'player') {
         window.location.reload()
     }
 });
 
 // Player exsit messege sent to server
-window.addEventListener('unload', () => {
-    console.log("unloaded")
-    const { id,role } = player
-    showError('You Left the game')
+// window.addEventListener('unload', () => {
+//     console.log("unloaded")
+//     const { id, role } = player
+//     showError('You Left the game')
 
-    socket.emit('playerLeft', {
-        id: id,       // your player's id
-        gameId: role === 'player' ? player.joined_game_id : player.game_id, // current game id
-        name: player.name,
-        role
-    });
+//     socket.emit('playerLeft', {
+//         id: id,       // your player's id
+//         gameId: role === 'player' ? player.joined_game_id : player.game_id, // current game id
+//         name: player.name,
+//         role
+//     });
 
-    
+
+// });
+
+// window.addEventListener("beforeunload", function (e) {
+//     console.log("unload confirmation")
+
+//     e.preventDefault();
+//     e.returnValue = "";   // Required for browser confirmation popup
+// });
+
+
+window.addEventListener("beforeunload", () => {
+    console.log("Leaving the game");
+
+    removePlayerFormGame(player)
+
 });
-
-window.addEventListener("beforeunload", function (e) {
-    console.log("unload confirmation")
-
-    e.preventDefault();
-    e.returnValue = "";   // Required for browser confirmation popup
-});
-
 
 
 // Example: host triggering a call number

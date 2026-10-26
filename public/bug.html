@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script> -->
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,7 @@
 <body>
     <section id="bugMainSection"></section>
 </body>
+<script src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
     const socket = io(); // connect to server
@@ -279,6 +280,7 @@
 
     function getAny() {
         let listName = inputListName.value
+        console.log(typeof(listName))
         fetch(`/get/any/with/request/${listName}`)
             .then(response => response.json())
             .then(data => {

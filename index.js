@@ -10,7 +10,7 @@ const server = http.createServer(app); // create HTTP server
 // const io = new Server(server);             // create Socket.IO server
 const io = new Server(server, {
     cors: {
-        origin: "http://127.0.0.1:5500", // frontend URL
+        origin: "http://127.0.0.1:5500/", // frontend URL
         methods: ["GET", "POST"]
     }
 });
@@ -25,7 +25,6 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT'], // Allow specific HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
 }));
-
 
 // main variables for save total game data
 let id_store = []
@@ -84,7 +83,260 @@ let types_of_wins = [
 
 let list_of_bug_called_num_of_all_games = []
 
+// src/constants/forex/currencies.js (In React Js)
+const currencies = [
+    {
+        id: 1,
+        code: "USD",
+        name: "US Dollar",
+        symbol: "$",
+    },
+    {
+        id: 2,
+        code: "EUR",
+        name: "Euro",
+        symbol: "€",
+    },
+    {
+        id: 3,
+        code: "GBP",
+        name: "British Pound",
+        symbol: "£",
+    },
+    {
+        id: 4,
+        code: "AED",
+        name: "UAE Dirham",
+        symbol: "د.إ",
+    },
+    {
+        id: 5,
+        code: "AUD",
+        name: "Australian Dollar",
+        symbol: "A$",
+    },
+    {
+        id: 6,
+        code: "CAD",
+        name: "Canadian Dollar",
+        symbol: "C$",
+    },
+    {
+        id: 7,
+        code: "SGD",
+        name: "Singapore Dollar",
+        symbol: "S$",
+    },
+    {
+        id: 8,
+        code: "NZD",
+        name: "New Zealand Dollar",
+        symbol: "NZ$",
+    },
+    {
+        id: 9,
+        code: "JPY",
+        name: "Japanese Yen",
+        symbol: "¥",
+    },
+    {
+        id: 10,
+        code: "CHF",
+        name: "Swiss Franc",
+        symbol: "CHF",
+    },
+    {
+        id: 11,
+        code: "SAR",
+        name: "Saudi Riyal",
+        symbol: "﷼",
+    },
+    {
+        id: 12,
+        code: "QAR",
+        name: "Qatari Riyal",
+        symbol: "﷼",
+    },
+    {
+        id: 13,
+        code: "KWD",
+        name: "Kuwaiti Dinar",
+        symbol: "KD",
+    },
+    {
+        id: 14,
+        code: "OMR",
+        name: "Omani Rial",
+        symbol: "﷼",
+    },
+    {
+        id: 15,
+        code: "BHD",
+        name: "Bahraini Dinar",
+        symbol: "BD",
+    },
+    {
+        id: 16,
+        code: "HKD",
+        name: "Hong Kong Dollar",
+        symbol: "HK$",
+    },
+    {
+        id: 17,
+        code: "THB",
+        name: "Thai Baht",
+        symbol: "฿",
+    },
+    {
+        id: 18,
+        code: "MYR",
+        name: "Malaysian Ringgit",
+        symbol: "RM",
+    },
+    {
+        id: 19,
+        code: "CNY",
+        name: "Chinese Yuan",
+        symbol: "¥",
+    },
+    {
+        id: 20,
+        code: "ZAR",
+        name: "South African Rand",
+        symbol: "R",
+    },
+];
+
+const homePageCards = Object.freeze([
+    {
+        title: "Forex Calculator",
+        desc: "Calculate INR / FC / Rate values easily.",
+        path: "/forex-calculator",
+    },
+    {
+        title: "Multy CN Calculator",
+        desc: "Calculate multiple currency products in a single calculation. .",
+        path: "/multi-currency-calculator",
+    },
+    {
+        title: "GST Calculator",
+        desc: "Check GST calculations.",
+        path: "/gst-calculator",
+    },
+    {
+        title: "TCS Calculator",
+        desc: "Check TCS calculations.",
+        path: "/tcs-calculator",
+    },
+    {
+        title: "Manual Calculator",
+        desc: "Perform manual calculations.",
+        path: "/manual-calculator",
+    },
+]);
+
+const products = [
+    // Private Visit / Gift / Maintenance
+    {
+        id: 1,
+        purposeId: 1,
+        code: "CN",
+        name: "Currency Notes",
+    },
+    {
+        id: 2,
+        purposeId: 1,
+        code: "FC",
+        name: "Forex Card",
+    },
+    {
+        id: 3,
+        purposeId: 1,
+        code: "AD1",
+        name: "Outward Remittance (AD1)",
+    },
+
+    // LRS - Education
+    {
+        id: 4,
+        purposeId: 2,
+        code: "CN",
+        name: "Currency Notes",
+    },
+    {
+        id: 5,
+        purposeId: 2,
+        code: "FC",
+        name: "Forex Card",
+    },
+    {
+        id: 6,
+        purposeId: 2,
+        code: "TT",
+        name: "Telegraphic Transfer",
+    },
+
+    // LRS - Education Loan
+    {
+        id: 7,
+        purposeId: 3,
+        code: "CN",
+        name: "Currency Notes",
+    },
+    {
+        id: 8,
+        purposeId: 3,
+        code: "FC",
+        name: "Forex Card",
+    },
+    {
+        id: 9,
+        purposeId: 3,
+        code: "TT",
+        name: "Telegraphic Transfer",
+    },
+
+    // Foreign Tour Package
+    {
+        id: 10,
+        purposeId: 4,
+        code: "FTP",
+        name: "Foreign Tour Package",
+    },
+];
+
+const purposeCodes = Object.freeze([
+    {
+        id: 3,
+        codeName: "LRS - Education",
+        tcsPercentage: 2,
+    },
+    {
+        id: 1,
+        codeName: "Private Visit / Gift / Maintenance",
+        tcsPercentage: 20,
+    },
+    {
+        id: 2,
+        codeName: "LRS - Education Loans",
+        tcsPercentage: 0,
+    },
+    {
+        id: 4,
+        codeName: "Foreign Tour Package",
+        tcsPercentage: 20,
+    },
+]);
+
+
 // Functions
+function fetchGameIndexFromList(gameId) {
+    const game = list_of_all_games.filter(g => String(g.id) === String(gameId))[0]
+    const gameIndex = list_of_all_games.indexOf(game)
+
+    return gameIndex
+}
+
 function changeGameStatus(gameId, status) {
     let list = list_of_all_games.filter(item => String(item.id) === String(gameId))[0]
     if (list)
@@ -200,6 +452,7 @@ function createGame(hostId) {
         hostId,
         status: 'created',
         callNumberList: [],
+        dontAllowPlayersToJoinGameHost: false,
         rools: []
 
     }
@@ -377,6 +630,26 @@ app.get('/get/ticket/:ticketID', (req, res) => {
 
 });
 
+app.post("/api/settings", async (req, res) => {
+    const { allowPlayersToJoin, gameId } = req.body;
+
+    // list_of_all_games.filter() = allowPlayersToJoin;
+
+    const gameIndex = fetchGameIndexFromList(gameId)
+
+    // Update your database or game settings here
+    list_of_all_games[gameIndex].dontAllowPlayersToJoinGameHost = allowPlayersToJoin
+
+    // console.log(game, allowPlayersToJoin)
+    res.json({
+        success: true,
+        settings: list_of_all_games[gameIndex].dontAllowPlayersToJoinGameHost
+    });
+});
+
+
+
+
 app.get('/get/all/games', (req, res) => {
     res.status(200).json(list_of_all_games)
 
@@ -407,6 +680,8 @@ app.get('/get/all/all', (req, res) => {
 });
 app.get('/get/any/with/request/:listName', (req, res) => {
     const { listName } = req.params
+
+    console.log(listName)
 
     res.status(200).json(listName)
 
@@ -477,40 +752,49 @@ io.on('connection', (socket) => {
 
         console.log('=> game : ', game_)
 
-        if (game_ !== undefined) {
-            if (game_.status === 'created') {
-                socket.join(`game-${gameId}`);
+        if ((game_ !== undefined) && (game_.status !== 'ended')) {
+            if (!list_of_all_games[fetchGameIndexFromList(gameId)].dontAllowPlayersToJoinGameHost) {
+                if (game_.status !== 'ended') {
 
-                list_of_players.filter(item => {
-                    if (item.id == id) {
-                        list_of_players[list_of_players.indexOf(item)].joined_game_id = gameId;
+                    socket.join(`game-${gameId}`);
+
+                    list_of_players.filter(item => {
+                        if (item.id == id) {
+                            list_of_players[list_of_players.indexOf(item)].joined_game_id = gameId;
+                        }
+                    });
+
+                    // Update joined players list
+                    const joinedPlayers = list_of_players.filter(p => p.joined_game_id === gameId);
+
+                    // ✅ Send to everyone in this room (players + host)
+                    io.to(`game-${gameId}`).emit('playersList', { joinedPlayers, host });
+
+                    //Send an player join notification to all palyers in game
+                    io.to(`game-${gameId}`).emit('playerJoinedNotify', { name, id })
+
+                    // Personal message
+                    let msg = `Welcome ${name} to Game ${gameId}`
+                    let ticket_id = ticket_generator()
+                    list_of_players.filter(item => {
+                        if (item.id == id) {
+                            list_of_players[list_of_players.indexOf(item)].ticket_id = ticket_id;
+                        }
+                    });
+                    socket.emit('personalNotification', { msg, ticket_id });
+                    // if (game_.status === "started") {
+                    if (game_.status === "sta") {
+                        const updatedRoolsList = list_of_all_games[fetchGameIndexFromList(gameId)].rools
+                        io.to(`game-${gameId}`).emit('gameStarted', { message: 'The game has begun!', updatedRoolsList });
+
                     }
-                });
 
-                // Update joined players list
-                const joinedPlayers = list_of_players.filter(p => p.joined_game_id === gameId);
-
-                // ✅ Send to everyone in this room (players + host)
-                io.to(`game-${gameId}`).emit('playersList', {joinedPlayers, host});
-
-                //Send an player join notification to all palyers in game
-                io.to(`game-${gameId}`).emit('playerJoinedNotify', { name, id })
-
-                // Personal message
-                let msg = `Welcome ${name} to Game ${gameId}`
-                let ticket_id = ticket_generator()
-                list_of_players.filter(item => {
-                    if (item.id == id) {
-                        list_of_players[list_of_players.indexOf(item)].ticket_id = ticket_id;
-                    }
-                });
-                socket.emit('personalNotification', { msg, ticket_id });
-
+                }
             } else {
-                socket.emit('personalNotification', `Ohh! Game alredy started con't join`);
+                socket.emit('personalNotification', { msg: "Ohh! Host not allowing to join the game" });
             }
         } else {
-            socket.emit('personalNotification', ` Ohh! Game Not Exist`);
+            socket.emit('personalNotification', { msg: "Ohh! Game Not Exist" });
         }
     });
 
@@ -778,6 +1062,14 @@ io.on('connection', (socket) => {
 
     })
 
+    socket.on('dontAllowPlayers', ({ checkStatus, gameId }) => {
+
+        changePlayersAllowStatus(checkStatus, gameId)
+        console.log(checkStatus)
+
+        // io.to(`game-${gameId}`).emit('gameEnded', { message: 'The game has ended by the Host' })
+    })
+
     // End the Game
     socket.on('gameEnd', ({ gameId }) => {
         changeGameStatus(gameId, "ended")
@@ -791,17 +1083,21 @@ io.on('connection', (socket) => {
         console.log("Role : ", role)
         if (role === 'player') {
             console.log(`Player ${id} left game ${gameId}`);
+
             // Remove that player from the game’s list
             list_of_players = list_of_players.filter(p => !(p.id === id && p.joined_game_id === gameId));
 
             // Get updated list of remaining players
             const joinedPlayers = list_of_players.filter(p => p.joined_game_id === gameId);
 
+            console.log("==================joinedPlayers")
+            console.table(joinedPlayers)
+
             // Send updated list to all players (and host) in that game
-            io.to(`game-${gameId}`).emit('playersList', joinedPlayers);
+            io.to(`game-${gameId}`).emit('playersList', { joinedPlayers });
 
             //Send an player left notification to all palyers in game
-            io.to(`game-${gameId}`).emit('playerLeftNotify', name);
+            io.to(`game-${gameId}`).emit('playerLeftNotify', {message:`${name} Left The Game`, playerId:id });
 
             // Optional: notify others
             // io.to(`game-${gameId}`).emit('playerLeftNotification', { id });
